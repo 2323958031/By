@@ -50,6 +50,767 @@ if (uni.restoreGlobal) {
     }
     return Object.freeze(Object.defineProperty(n, Symbol.toStringTag, { value: "Module" }));
   }
+<<<<<<< HEAD
+=======
+  const ON_LOAD = "onLoad";
+  const ON_REACH_BOTTOM = "onReachBottom";
+  function formatAppLog(type, filename, ...args) {
+    if (uni.__log__) {
+      uni.__log__(type, filename, ...args);
+    } else {
+      console[type].apply(console, [...args, filename]);
+    }
+  }
+  function resolveEasycom(component, easycom) {
+    return shared.isString(component) ? easycom : component;
+  }
+  const createHook = (lifecycle) => (hook, target = vue.getCurrentInstance()) => {
+    !vue.isInSSRComponentSetup && vue.injectHook(lifecycle, hook, target);
+  };
+  const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
+  const onReachBottom = /* @__PURE__ */ createHook(ON_REACH_BOTTOM);
+  var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+  var md5Exports = {};
+  var md5$2 = {
+    get exports() {
+      return md5Exports;
+    },
+    set exports(v) {
+      md5Exports = v;
+    }
+  };
+  /**
+   * [js-md5]{@link https://github.com/emn178/js-md5}
+   *
+   * @namespace md5
+   * @version 0.7.3
+   * @author Chen, Yi-Cyuan [emn178@gmail.com]
+   * @copyright Chen, Yi-Cyuan 2014-2017
+   * @license MIT
+   */
+  (function(module) {
+    (function() {
+      var ERROR = "input is invalid type";
+      var WINDOW = typeof window === "object";
+      var root = WINDOW ? window : {};
+      if (root.JS_MD5_NO_WINDOW) {
+        WINDOW = false;
+      }
+      var WEB_WORKER = !WINDOW && typeof self === "object";
+      var NODE_JS = !root.JS_MD5_NO_NODE_JS && typeof process === "object" && process.versions && process.versions.node;
+      if (NODE_JS) {
+        root = commonjsGlobal;
+      } else if (WEB_WORKER) {
+        root = self;
+      }
+      var COMMON_JS = !root.JS_MD5_NO_COMMON_JS && true && module.exports;
+      var ARRAY_BUFFER = !root.JS_MD5_NO_ARRAY_BUFFER && typeof ArrayBuffer !== "undefined";
+      var HEX_CHARS = "0123456789abcdef".split("");
+      var EXTRA = [128, 32768, 8388608, -2147483648];
+      var SHIFT = [0, 8, 16, 24];
+      var OUTPUT_TYPES = ["hex", "array", "digest", "buffer", "arrayBuffer", "base64"];
+      var BASE64_ENCODE_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
+      var blocks = [], buffer8;
+      if (ARRAY_BUFFER) {
+        var buffer = new ArrayBuffer(68);
+        buffer8 = new Uint8Array(buffer);
+        blocks = new Uint32Array(buffer);
+      }
+      if (root.JS_MD5_NO_NODE_JS || !Array.isArray) {
+        Array.isArray = function(obj) {
+          return Object.prototype.toString.call(obj) === "[object Array]";
+        };
+      }
+      if (ARRAY_BUFFER && (root.JS_MD5_NO_ARRAY_BUFFER_IS_VIEW || !ArrayBuffer.isView)) {
+        ArrayBuffer.isView = function(obj) {
+          return typeof obj === "object" && obj.buffer && obj.buffer.constructor === ArrayBuffer;
+        };
+      }
+      var createOutputMethod = function(outputType) {
+        return function(message2) {
+          return new Md5(true).update(message2)[outputType]();
+        };
+      };
+      var createMethod = function() {
+        var method2 = createOutputMethod("hex");
+        if (NODE_JS) {
+          method2 = nodeWrap(method2);
+        }
+        method2.create = function() {
+          return new Md5();
+        };
+        method2.update = function(message2) {
+          return method2.create().update(message2);
+        };
+        for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
+          var type = OUTPUT_TYPES[i];
+          method2[type] = createOutputMethod(type);
+        }
+        return method2;
+      };
+      var nodeWrap = function(method) {
+        var crypto = eval("require('crypto')");
+        var Buffer = eval("require('buffer').Buffer");
+        var nodeMethod = function(message2) {
+          if (typeof message2 === "string") {
+            return crypto.createHash("md5").update(message2, "utf8").digest("hex");
+          } else {
+            if (message2 === null || message2 === void 0) {
+              throw ERROR;
+            } else if (message2.constructor === ArrayBuffer) {
+              message2 = new Uint8Array(message2);
+            }
+          }
+          if (Array.isArray(message2) || ArrayBuffer.isView(message2) || message2.constructor === Buffer) {
+            return crypto.createHash("md5").update(new Buffer(message2)).digest("hex");
+          } else {
+            return method(message2);
+          }
+        };
+        return nodeMethod;
+      };
+      function Md5(sharedMemory) {
+        if (sharedMemory) {
+          blocks[0] = blocks[16] = blocks[1] = blocks[2] = blocks[3] = blocks[4] = blocks[5] = blocks[6] = blocks[7] = blocks[8] = blocks[9] = blocks[10] = blocks[11] = blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
+          this.blocks = blocks;
+          this.buffer8 = buffer8;
+        } else {
+          if (ARRAY_BUFFER) {
+            var buffer2 = new ArrayBuffer(68);
+            this.buffer8 = new Uint8Array(buffer2);
+            this.blocks = new Uint32Array(buffer2);
+          } else {
+            this.blocks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          }
+        }
+        this.h0 = this.h1 = this.h2 = this.h3 = this.start = this.bytes = this.hBytes = 0;
+        this.finalized = this.hashed = false;
+        this.first = true;
+      }
+      Md5.prototype.update = function(message2) {
+        if (this.finalized) {
+          return;
+        }
+        var notString, type = typeof message2;
+        if (type !== "string") {
+          if (type === "object") {
+            if (message2 === null) {
+              throw ERROR;
+            } else if (ARRAY_BUFFER && message2.constructor === ArrayBuffer) {
+              message2 = new Uint8Array(message2);
+            } else if (!Array.isArray(message2)) {
+              if (!ARRAY_BUFFER || !ArrayBuffer.isView(message2)) {
+                throw ERROR;
+              }
+            }
+          } else {
+            throw ERROR;
+          }
+          notString = true;
+        }
+        var code, index = 0, i, length = message2.length, blocks2 = this.blocks;
+        var buffer82 = this.buffer8;
+        while (index < length) {
+          if (this.hashed) {
+            this.hashed = false;
+            blocks2[0] = blocks2[16];
+            blocks2[16] = blocks2[1] = blocks2[2] = blocks2[3] = blocks2[4] = blocks2[5] = blocks2[6] = blocks2[7] = blocks2[8] = blocks2[9] = blocks2[10] = blocks2[11] = blocks2[12] = blocks2[13] = blocks2[14] = blocks2[15] = 0;
+          }
+          if (notString) {
+            if (ARRAY_BUFFER) {
+              for (i = this.start; index < length && i < 64; ++index) {
+                buffer82[i++] = message2[index];
+              }
+            } else {
+              for (i = this.start; index < length && i < 64; ++index) {
+                blocks2[i >> 2] |= message2[index] << SHIFT[i++ & 3];
+              }
+            }
+          } else {
+            if (ARRAY_BUFFER) {
+              for (i = this.start; index < length && i < 64; ++index) {
+                code = message2.charCodeAt(index);
+                if (code < 128) {
+                  buffer82[i++] = code;
+                } else if (code < 2048) {
+                  buffer82[i++] = 192 | code >> 6;
+                  buffer82[i++] = 128 | code & 63;
+                } else if (code < 55296 || code >= 57344) {
+                  buffer82[i++] = 224 | code >> 12;
+                  buffer82[i++] = 128 | code >> 6 & 63;
+                  buffer82[i++] = 128 | code & 63;
+                } else {
+                  code = 65536 + ((code & 1023) << 10 | message2.charCodeAt(++index) & 1023);
+                  buffer82[i++] = 240 | code >> 18;
+                  buffer82[i++] = 128 | code >> 12 & 63;
+                  buffer82[i++] = 128 | code >> 6 & 63;
+                  buffer82[i++] = 128 | code & 63;
+                }
+              }
+            } else {
+              for (i = this.start; index < length && i < 64; ++index) {
+                code = message2.charCodeAt(index);
+                if (code < 128) {
+                  blocks2[i >> 2] |= code << SHIFT[i++ & 3];
+                } else if (code < 2048) {
+                  blocks2[i >> 2] |= (192 | code >> 6) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code & 63) << SHIFT[i++ & 3];
+                } else if (code < 55296 || code >= 57344) {
+                  blocks2[i >> 2] |= (224 | code >> 12) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code >> 6 & 63) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code & 63) << SHIFT[i++ & 3];
+                } else {
+                  code = 65536 + ((code & 1023) << 10 | message2.charCodeAt(++index) & 1023);
+                  blocks2[i >> 2] |= (240 | code >> 18) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code >> 12 & 63) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code >> 6 & 63) << SHIFT[i++ & 3];
+                  blocks2[i >> 2] |= (128 | code & 63) << SHIFT[i++ & 3];
+                }
+              }
+            }
+          }
+          this.lastByteIndex = i;
+          this.bytes += i - this.start;
+          if (i >= 64) {
+            this.start = i - 64;
+            this.hash();
+            this.hashed = true;
+          } else {
+            this.start = i;
+          }
+        }
+        if (this.bytes > 4294967295) {
+          this.hBytes += this.bytes / 4294967296 << 0;
+          this.bytes = this.bytes % 4294967296;
+        }
+        return this;
+      };
+      Md5.prototype.finalize = function() {
+        if (this.finalized) {
+          return;
+        }
+        this.finalized = true;
+        var blocks2 = this.blocks, i = this.lastByteIndex;
+        blocks2[i >> 2] |= EXTRA[i & 3];
+        if (i >= 56) {
+          if (!this.hashed) {
+            this.hash();
+          }
+          blocks2[0] = blocks2[16];
+          blocks2[16] = blocks2[1] = blocks2[2] = blocks2[3] = blocks2[4] = blocks2[5] = blocks2[6] = blocks2[7] = blocks2[8] = blocks2[9] = blocks2[10] = blocks2[11] = blocks2[12] = blocks2[13] = blocks2[14] = blocks2[15] = 0;
+        }
+        blocks2[14] = this.bytes << 3;
+        blocks2[15] = this.hBytes << 3 | this.bytes >>> 29;
+        this.hash();
+      };
+      Md5.prototype.hash = function() {
+        var a, b, c, d, bc, da, blocks2 = this.blocks;
+        if (this.first) {
+          a = blocks2[0] - 680876937;
+          a = (a << 7 | a >>> 25) - 271733879 << 0;
+          d = (-1732584194 ^ a & 2004318071) + blocks2[1] - 117830708;
+          d = (d << 12 | d >>> 20) + a << 0;
+          c = (-271733879 ^ d & (a ^ -271733879)) + blocks2[2] - 1126478375;
+          c = (c << 17 | c >>> 15) + d << 0;
+          b = (a ^ c & (d ^ a)) + blocks2[3] - 1316259209;
+          b = (b << 22 | b >>> 10) + c << 0;
+        } else {
+          a = this.h0;
+          b = this.h1;
+          c = this.h2;
+          d = this.h3;
+          a += (d ^ b & (c ^ d)) + blocks2[0] - 680876936;
+          a = (a << 7 | a >>> 25) + b << 0;
+          d += (c ^ a & (b ^ c)) + blocks2[1] - 389564586;
+          d = (d << 12 | d >>> 20) + a << 0;
+          c += (b ^ d & (a ^ b)) + blocks2[2] + 606105819;
+          c = (c << 17 | c >>> 15) + d << 0;
+          b += (a ^ c & (d ^ a)) + blocks2[3] - 1044525330;
+          b = (b << 22 | b >>> 10) + c << 0;
+        }
+        a += (d ^ b & (c ^ d)) + blocks2[4] - 176418897;
+        a = (a << 7 | a >>> 25) + b << 0;
+        d += (c ^ a & (b ^ c)) + blocks2[5] + 1200080426;
+        d = (d << 12 | d >>> 20) + a << 0;
+        c += (b ^ d & (a ^ b)) + blocks2[6] - 1473231341;
+        c = (c << 17 | c >>> 15) + d << 0;
+        b += (a ^ c & (d ^ a)) + blocks2[7] - 45705983;
+        b = (b << 22 | b >>> 10) + c << 0;
+        a += (d ^ b & (c ^ d)) + blocks2[8] + 1770035416;
+        a = (a << 7 | a >>> 25) + b << 0;
+        d += (c ^ a & (b ^ c)) + blocks2[9] - 1958414417;
+        d = (d << 12 | d >>> 20) + a << 0;
+        c += (b ^ d & (a ^ b)) + blocks2[10] - 42063;
+        c = (c << 17 | c >>> 15) + d << 0;
+        b += (a ^ c & (d ^ a)) + blocks2[11] - 1990404162;
+        b = (b << 22 | b >>> 10) + c << 0;
+        a += (d ^ b & (c ^ d)) + blocks2[12] + 1804603682;
+        a = (a << 7 | a >>> 25) + b << 0;
+        d += (c ^ a & (b ^ c)) + blocks2[13] - 40341101;
+        d = (d << 12 | d >>> 20) + a << 0;
+        c += (b ^ d & (a ^ b)) + blocks2[14] - 1502002290;
+        c = (c << 17 | c >>> 15) + d << 0;
+        b += (a ^ c & (d ^ a)) + blocks2[15] + 1236535329;
+        b = (b << 22 | b >>> 10) + c << 0;
+        a += (c ^ d & (b ^ c)) + blocks2[1] - 165796510;
+        a = (a << 5 | a >>> 27) + b << 0;
+        d += (b ^ c & (a ^ b)) + blocks2[6] - 1069501632;
+        d = (d << 9 | d >>> 23) + a << 0;
+        c += (a ^ b & (d ^ a)) + blocks2[11] + 643717713;
+        c = (c << 14 | c >>> 18) + d << 0;
+        b += (d ^ a & (c ^ d)) + blocks2[0] - 373897302;
+        b = (b << 20 | b >>> 12) + c << 0;
+        a += (c ^ d & (b ^ c)) + blocks2[5] - 701558691;
+        a = (a << 5 | a >>> 27) + b << 0;
+        d += (b ^ c & (a ^ b)) + blocks2[10] + 38016083;
+        d = (d << 9 | d >>> 23) + a << 0;
+        c += (a ^ b & (d ^ a)) + blocks2[15] - 660478335;
+        c = (c << 14 | c >>> 18) + d << 0;
+        b += (d ^ a & (c ^ d)) + blocks2[4] - 405537848;
+        b = (b << 20 | b >>> 12) + c << 0;
+        a += (c ^ d & (b ^ c)) + blocks2[9] + 568446438;
+        a = (a << 5 | a >>> 27) + b << 0;
+        d += (b ^ c & (a ^ b)) + blocks2[14] - 1019803690;
+        d = (d << 9 | d >>> 23) + a << 0;
+        c += (a ^ b & (d ^ a)) + blocks2[3] - 187363961;
+        c = (c << 14 | c >>> 18) + d << 0;
+        b += (d ^ a & (c ^ d)) + blocks2[8] + 1163531501;
+        b = (b << 20 | b >>> 12) + c << 0;
+        a += (c ^ d & (b ^ c)) + blocks2[13] - 1444681467;
+        a = (a << 5 | a >>> 27) + b << 0;
+        d += (b ^ c & (a ^ b)) + blocks2[2] - 51403784;
+        d = (d << 9 | d >>> 23) + a << 0;
+        c += (a ^ b & (d ^ a)) + blocks2[7] + 1735328473;
+        c = (c << 14 | c >>> 18) + d << 0;
+        b += (d ^ a & (c ^ d)) + blocks2[12] - 1926607734;
+        b = (b << 20 | b >>> 12) + c << 0;
+        bc = b ^ c;
+        a += (bc ^ d) + blocks2[5] - 378558;
+        a = (a << 4 | a >>> 28) + b << 0;
+        d += (bc ^ a) + blocks2[8] - 2022574463;
+        d = (d << 11 | d >>> 21) + a << 0;
+        da = d ^ a;
+        c += (da ^ b) + blocks2[11] + 1839030562;
+        c = (c << 16 | c >>> 16) + d << 0;
+        b += (da ^ c) + blocks2[14] - 35309556;
+        b = (b << 23 | b >>> 9) + c << 0;
+        bc = b ^ c;
+        a += (bc ^ d) + blocks2[1] - 1530992060;
+        a = (a << 4 | a >>> 28) + b << 0;
+        d += (bc ^ a) + blocks2[4] + 1272893353;
+        d = (d << 11 | d >>> 21) + a << 0;
+        da = d ^ a;
+        c += (da ^ b) + blocks2[7] - 155497632;
+        c = (c << 16 | c >>> 16) + d << 0;
+        b += (da ^ c) + blocks2[10] - 1094730640;
+        b = (b << 23 | b >>> 9) + c << 0;
+        bc = b ^ c;
+        a += (bc ^ d) + blocks2[13] + 681279174;
+        a = (a << 4 | a >>> 28) + b << 0;
+        d += (bc ^ a) + blocks2[0] - 358537222;
+        d = (d << 11 | d >>> 21) + a << 0;
+        da = d ^ a;
+        c += (da ^ b) + blocks2[3] - 722521979;
+        c = (c << 16 | c >>> 16) + d << 0;
+        b += (da ^ c) + blocks2[6] + 76029189;
+        b = (b << 23 | b >>> 9) + c << 0;
+        bc = b ^ c;
+        a += (bc ^ d) + blocks2[9] - 640364487;
+        a = (a << 4 | a >>> 28) + b << 0;
+        d += (bc ^ a) + blocks2[12] - 421815835;
+        d = (d << 11 | d >>> 21) + a << 0;
+        da = d ^ a;
+        c += (da ^ b) + blocks2[15] + 530742520;
+        c = (c << 16 | c >>> 16) + d << 0;
+        b += (da ^ c) + blocks2[2] - 995338651;
+        b = (b << 23 | b >>> 9) + c << 0;
+        a += (c ^ (b | ~d)) + blocks2[0] - 198630844;
+        a = (a << 6 | a >>> 26) + b << 0;
+        d += (b ^ (a | ~c)) + blocks2[7] + 1126891415;
+        d = (d << 10 | d >>> 22) + a << 0;
+        c += (a ^ (d | ~b)) + blocks2[14] - 1416354905;
+        c = (c << 15 | c >>> 17) + d << 0;
+        b += (d ^ (c | ~a)) + blocks2[5] - 57434055;
+        b = (b << 21 | b >>> 11) + c << 0;
+        a += (c ^ (b | ~d)) + blocks2[12] + 1700485571;
+        a = (a << 6 | a >>> 26) + b << 0;
+        d += (b ^ (a | ~c)) + blocks2[3] - 1894986606;
+        d = (d << 10 | d >>> 22) + a << 0;
+        c += (a ^ (d | ~b)) + blocks2[10] - 1051523;
+        c = (c << 15 | c >>> 17) + d << 0;
+        b += (d ^ (c | ~a)) + blocks2[1] - 2054922799;
+        b = (b << 21 | b >>> 11) + c << 0;
+        a += (c ^ (b | ~d)) + blocks2[8] + 1873313359;
+        a = (a << 6 | a >>> 26) + b << 0;
+        d += (b ^ (a | ~c)) + blocks2[15] - 30611744;
+        d = (d << 10 | d >>> 22) + a << 0;
+        c += (a ^ (d | ~b)) + blocks2[6] - 1560198380;
+        c = (c << 15 | c >>> 17) + d << 0;
+        b += (d ^ (c | ~a)) + blocks2[13] + 1309151649;
+        b = (b << 21 | b >>> 11) + c << 0;
+        a += (c ^ (b | ~d)) + blocks2[4] - 145523070;
+        a = (a << 6 | a >>> 26) + b << 0;
+        d += (b ^ (a | ~c)) + blocks2[11] - 1120210379;
+        d = (d << 10 | d >>> 22) + a << 0;
+        c += (a ^ (d | ~b)) + blocks2[2] + 718787259;
+        c = (c << 15 | c >>> 17) + d << 0;
+        b += (d ^ (c | ~a)) + blocks2[9] - 343485551;
+        b = (b << 21 | b >>> 11) + c << 0;
+        if (this.first) {
+          this.h0 = a + 1732584193 << 0;
+          this.h1 = b - 271733879 << 0;
+          this.h2 = c - 1732584194 << 0;
+          this.h3 = d + 271733878 << 0;
+          this.first = false;
+        } else {
+          this.h0 = this.h0 + a << 0;
+          this.h1 = this.h1 + b << 0;
+          this.h2 = this.h2 + c << 0;
+          this.h3 = this.h3 + d << 0;
+        }
+      };
+      Md5.prototype.hex = function() {
+        this.finalize();
+        var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3;
+        return HEX_CHARS[h0 >> 4 & 15] + HEX_CHARS[h0 & 15] + HEX_CHARS[h0 >> 12 & 15] + HEX_CHARS[h0 >> 8 & 15] + HEX_CHARS[h0 >> 20 & 15] + HEX_CHARS[h0 >> 16 & 15] + HEX_CHARS[h0 >> 28 & 15] + HEX_CHARS[h0 >> 24 & 15] + HEX_CHARS[h1 >> 4 & 15] + HEX_CHARS[h1 & 15] + HEX_CHARS[h1 >> 12 & 15] + HEX_CHARS[h1 >> 8 & 15] + HEX_CHARS[h1 >> 20 & 15] + HEX_CHARS[h1 >> 16 & 15] + HEX_CHARS[h1 >> 28 & 15] + HEX_CHARS[h1 >> 24 & 15] + HEX_CHARS[h2 >> 4 & 15] + HEX_CHARS[h2 & 15] + HEX_CHARS[h2 >> 12 & 15] + HEX_CHARS[h2 >> 8 & 15] + HEX_CHARS[h2 >> 20 & 15] + HEX_CHARS[h2 >> 16 & 15] + HEX_CHARS[h2 >> 28 & 15] + HEX_CHARS[h2 >> 24 & 15] + HEX_CHARS[h3 >> 4 & 15] + HEX_CHARS[h3 & 15] + HEX_CHARS[h3 >> 12 & 15] + HEX_CHARS[h3 >> 8 & 15] + HEX_CHARS[h3 >> 20 & 15] + HEX_CHARS[h3 >> 16 & 15] + HEX_CHARS[h3 >> 28 & 15] + HEX_CHARS[h3 >> 24 & 15];
+      };
+      Md5.prototype.toString = Md5.prototype.hex;
+      Md5.prototype.digest = function() {
+        this.finalize();
+        var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3;
+        return [
+          h0 & 255,
+          h0 >> 8 & 255,
+          h0 >> 16 & 255,
+          h0 >> 24 & 255,
+          h1 & 255,
+          h1 >> 8 & 255,
+          h1 >> 16 & 255,
+          h1 >> 24 & 255,
+          h2 & 255,
+          h2 >> 8 & 255,
+          h2 >> 16 & 255,
+          h2 >> 24 & 255,
+          h3 & 255,
+          h3 >> 8 & 255,
+          h3 >> 16 & 255,
+          h3 >> 24 & 255
+        ];
+      };
+      Md5.prototype.array = Md5.prototype.digest;
+      Md5.prototype.arrayBuffer = function() {
+        this.finalize();
+        var buffer2 = new ArrayBuffer(16);
+        var blocks2 = new Uint32Array(buffer2);
+        blocks2[0] = this.h0;
+        blocks2[1] = this.h1;
+        blocks2[2] = this.h2;
+        blocks2[3] = this.h3;
+        return buffer2;
+      };
+      Md5.prototype.buffer = Md5.prototype.arrayBuffer;
+      Md5.prototype.base64 = function() {
+        var v1, v2, v3, base64Str = "", bytes = this.array();
+        for (var i = 0; i < 15; ) {
+          v1 = bytes[i++];
+          v2 = bytes[i++];
+          v3 = bytes[i++];
+          base64Str += BASE64_ENCODE_CHAR[v1 >>> 2] + BASE64_ENCODE_CHAR[(v1 << 4 | v2 >>> 4) & 63] + BASE64_ENCODE_CHAR[(v2 << 2 | v3 >>> 6) & 63] + BASE64_ENCODE_CHAR[v3 & 63];
+        }
+        v1 = bytes[i];
+        base64Str += BASE64_ENCODE_CHAR[v1 >>> 2] + BASE64_ENCODE_CHAR[v1 << 4 & 63] + "==";
+        return base64Str;
+      };
+      var exports = createMethod();
+      if (COMMON_JS) {
+        module.exports = exports;
+      } else {
+        root.md5 = exports;
+      }
+    })();
+  })(md5$2);
+  const md5 = md5Exports;
+  const md5$1 = /* @__PURE__ */ _mergeNamespaces({
+    __proto__: null,
+    default: md5
+  }, [md5Exports]);
+  function logInfo(msg) {
+    formatAppLog("info", "at common/sju.base.js:11", msg);
+  }
+  function toMD5(val) {
+    return md5$1(val);
+  }
+  function isNull(val) {
+    var isNull2 = false;
+    if (typeof val == void 0)
+      isNull2 = true;
+    if (val == null)
+      isNull2 = true;
+    if (val == "")
+      isNull2 = true;
+    return isNull2;
+  }
+  function isNotNull(val) {
+    return !isNull(val);
+  }
+  function checkNotNull(val, msg) {
+    if (isNull(val)) {
+      alert.showError(msg);
+      return false;
+    }
+    return true;
+  }
+  function checkArrayNotNull(arr) {
+    var isNotNull2 = true;
+    if (typeof arr == "object") {
+      for (let item of arr) {
+        if (isNull(item.val)) {
+          isNotNull2 = false;
+          alert.showError(item.msg);
+          break;
+        }
+      }
+    } else {
+      isNotNull2 = false;
+      alert.showError("参数不合法");
+    }
+    return isNotNull2;
+  }
+  const sjuBase = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    checkArrayNotNull,
+    checkNotNull,
+    isNotNull,
+    isNull,
+    logInfo,
+    toMD5
+  }, Symbol.toStringTag, { value: "Module" }));
+  const _export_sfc = (sfc, props) => {
+    const target = sfc.__vccOpts || sfc;
+    for (const [key, val] of props) {
+      target[key] = val;
+    }
+    return target;
+  };
+  const _sfc_main$11 = {
+    __name: "index",
+    setup(__props) {
+      let arr = vue.ref([]);
+      let erjinav = vue.ref([]);
+      let imgs = vue.ref([]);
+      let bannxia = vue.ref([]);
+      let loading = vue.ref(false);
+      let page = vue.ref(2);
+      onLoad((op) => {
+        uni.request({
+          url: "http://192.168.212.25:5566/home",
+          success(res) {
+            erjinav.value = res.data.homeData.oneLevelCategoryList;
+            imgs.value = res.data.homeData.banners;
+            bannxia.value = res.data.homeData.operationNavigation;
+            formatAppLog("log", "at pages/tab/index/index.vue:111", res.data.floorData.blockList[1].block, "123");
+            arr.value = res.data.floorData.blockList[1].block;
+          }
+        });
+      });
+      onReachBottom((e) => {
+        loading.value = true;
+        page.value++;
+        uni.request({
+          // 	// method:'POST',
+          url: "http://192.168.212.25:5566/floorlist",
+          data: {
+            pageIndex: page.value
+          },
+          success(res) {
+            formatAppLog("log", "at pages/tab/index/index.vue:132", res);
+          }
+        });
+        setTimeout(function() {
+          loading.value = false;
+        }, 2e3);
+      });
+      return (_ctx, _cache) => {
+        return vue.openBlock(), vue.createElementBlock("view", { class: "box" }, [
+          vue.createElementVNode("view", { class: "ssk" }, [
+            vue.createElementVNode("view", { class: "ssl" }, [
+              vue.createElementVNode("image", {
+                class: "fdj",
+                src: "/static/tool/搜索.png",
+                mode: ""
+              }),
+              vue.createTextVNode(" 请输入你想要的商品 ")
+            ])
+          ]),
+          vue.createCommentVNode(" 头部导航栏 "),
+          vue.createElementVNode("scroll-view", {
+            class: "topnav",
+            "scroll-x": "true",
+            "scroll-left": "120",
+            "show-scrollbar": ""
+          }, [
+            vue.createElementVNode("view", { class: "remen" }, " 热门 "),
+            (vue.openBlock(true), vue.createElementBlock(
+              vue.Fragment,
+              null,
+              vue.renderList(vue.unref(erjinav), (item, i) => {
+                return vue.openBlock(), vue.createElementBlock(
+                  "view",
+                  {
+                    class: "remen",
+                    key: "i"
+                  },
+                  vue.toDisplayString(item.categoryName),
+                  1
+                  /* TEXT */
+                );
+              }),
+              128
+              /* KEYED_FRAGMENT */
+            ))
+          ]),
+          vue.createCommentVNode(" banner图 "),
+          vue.createElementVNode("swiper", {
+            class: "swiper",
+            circular: "",
+            "indicator-dots": "true",
+            autoplay: "true",
+            interval: "5000",
+            "indicator-active-color": "#f7b200"
+          }, [
+            (vue.openBlock(true), vue.createElementBlock(
+              vue.Fragment,
+              null,
+              vue.renderList(vue.unref(imgs), (swiper, index) => {
+                return vue.openBlock(), vue.createElementBlock("swiper-item", { key: "index" }, [
+                  vue.createElementVNode("image", {
+                    src: swiper.newImageUrl
+                  }, null, 8, ["src"])
+                ]);
+              }),
+              128
+              /* KEYED_FRAGMENT */
+            ))
+          ]),
+          vue.createCommentVNode(" 轮播图下面 "),
+          vue.createElementVNode("view", { class: "bannerxia" }, [
+            vue.createElementVNode("view", { class: "fen" }, " 大牌品质/ "),
+            vue.createElementVNode("view", { class: "fen" }, " 工厂价格/ "),
+            vue.createElementVNode("view", { class: "fen" }, " 分期支付/ "),
+            vue.createElementVNode("view", { class: "fen" }, " 顺丰包邮/ "),
+            vue.createElementVNode("view", { class: "fen" }, " 无忧退款 ")
+          ]),
+          vue.createElementVNode("view", { class: "bannxia2" }, [
+            (vue.openBlock(true), vue.createElementBlock(
+              vue.Fragment,
+              null,
+              vue.renderList(vue.unref(bannxia), (item, index) => {
+                return vue.openBlock(), vue.createElementBlock("view", { key: index }, [
+                  vue.createElementVNode("view", { class: "xiaico" }, [
+                    vue.createElementVNode("image", {
+                      class: "icos",
+                      src: item.icon,
+                      mode: ""
+                    }, null, 8, ["src"]),
+                    vue.createElementVNode(
+                      "view",
+                      { class: "titl" },
+                      vue.toDisplayString(item.title),
+                      1
+                      /* TEXT */
+                    )
+                  ])
+                ]);
+              }),
+              128
+              /* KEYED_FRAGMENT */
+            ))
+          ]),
+          vue.createCommentVNode(" 产品列表 "),
+          vue.createElementVNode("view", { class: "lists" }, [
+            (vue.openBlock(true), vue.createElementBlock(
+              vue.Fragment,
+              null,
+              vue.renderList(vue.unref(arr), (item, index) => {
+                return vue.openBlock(), vue.createElementBlock("view", {
+                  class: "shops",
+                  key: index
+                }, [
+                  (vue.openBlock(true), vue.createElementBlock(
+                    vue.Fragment,
+                    null,
+                    vue.renderList(item.data, (it, i) => {
+                      return vue.openBlock(), vue.createElementBlock("view", {
+                        class: "shopa",
+                        key: i
+                      }, [
+                        vue.createElementVNode("image", {
+                          class: "shopimg",
+                          src: it.image,
+                          mode: ""
+                        }, null, 8, ["src"]),
+                        vue.createElementVNode(
+                          "view",
+                          { class: "price" },
+                          " ￥" + vue.toDisplayString(it.priceStr),
+                          1
+                          /* TEXT */
+                        ),
+                        vue.createElementVNode("view", { class: "labels" }, [
+                          (vue.openBlock(true), vue.createElementBlock(
+                            vue.Fragment,
+                            null,
+                            vue.renderList(it.labels, (eme, ia) => {
+                              return vue.openBlock(), vue.createElementBlock(
+                                "view",
+                                {
+                                  class: "content",
+                                  key: ia
+                                },
+                                vue.toDisplayString(eme.content),
+                                1
+                                /* TEXT */
+                              );
+                            }),
+                            128
+                            /* KEYED_FRAGMENT */
+                          ))
+                        ]),
+                        vue.createElementVNode(
+                          "view",
+                          { class: "mainTitle" },
+                          vue.toDisplayString(it.mainTitle),
+                          1
+                          /* TEXT */
+                        ),
+                        vue.createElementVNode(
+                          "view",
+                          { class: "thirdContent" },
+                          vue.toDisplayString(it.thirdContent),
+                          1
+                          /* TEXT */
+                        )
+                      ]);
+                    }),
+                    128
+                    /* KEYED_FRAGMENT */
+                  ))
+                ]);
+              }),
+              128
+              /* KEYED_FRAGMENT */
+            )),
+            vue.unref(loading) ? (vue.openBlock(), vue.createElementBlock("div", {
+              key: 0,
+              style: { "text-align": "center", "line-height": "50rpx" }
+            }, "加载中...")) : vue.createCommentVNode("v-if", true)
+          ])
+        ]);
+      };
+    }
+  };
+  const PagesTabIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$11, [["__scopeId", "data-v-96c89826"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/pages/tab/index/index.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const icons = {
     "contact": "",
     "person": "",
@@ -147,6 +908,7 @@ if (uni.restoreGlobal) {
     "scan": "",
     "shop": ""
   };
+<<<<<<< HEAD
   const _export_sfc = (sfc, props) => {
     const target = sfc.__vccOpts || sfc;
     for (const [key, val] of props) {
@@ -155,6 +917,9 @@ if (uni.restoreGlobal) {
     return target;
   };
   const _sfc_main$11 = {
+=======
+  const _sfc_main$10 = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     name: "UniIcons",
     props: {
       type: {
@@ -181,7 +946,11 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$_(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$$(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "text",
       {
@@ -194,6 +963,7 @@ if (uni.restoreGlobal) {
       /* TEXT, STYLE */
     );
   }
+<<<<<<< HEAD
   const __easycom_1$8 = /* @__PURE__ */ _export_sfc(_sfc_main$11, [["render", _sfc_render$_], ["__scopeId", "data-v-f218fb61"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-icons/uni-icons.vue"]]);
   const ON_LOAD = "onLoad";
   function formatAppLog(type, filename, ...args) {
@@ -212,6 +982,11 @@ if (uni.restoreGlobal) {
   const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
   var statusBarHeight = uni.getSystemInfoSync().statusBarHeight + "px";
   const _sfc_main$10 = {
+=======
+  const __easycom_1$8 = /* @__PURE__ */ _export_sfc(_sfc_main$10, [["render", _sfc_render$$], ["__scopeId", "data-v-f218fb61"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-icons/uni-icons.vue"]]);
+  var statusBarHeight = uni.getSystemInfoSync().statusBarHeight + "px";
+  const _sfc_main$$ = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     name: "UniStatusBar",
     data() {
       return {
@@ -241,7 +1016,11 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$Z(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$_(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -255,9 +1034,15 @@ if (uni.restoreGlobal) {
       /* CLASS, STYLE */
     );
   }
+<<<<<<< HEAD
   const statusBar = /* @__PURE__ */ _export_sfc(_sfc_main$10, [["render", _sfc_render$Z], ["__scopeId", "data-v-04afc527"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-nav-bar/uni-status-bar.vue"]]);
   const getVal = (val) => typeof val === "number" ? val + "px" : val;
   const _sfc_main$$ = {
+=======
+  const statusBar = /* @__PURE__ */ _export_sfc(_sfc_main$$, [["render", _sfc_render$_], ["__scopeId", "data-v-04afc527"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-nav-bar/uni-status-bar.vue"]]);
+  const getVal = (val) => typeof val === "number" ? val + "px" : val;
+  const _sfc_main$_ = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     name: "UniNavBar",
     components: {
       statusBar
@@ -398,7 +1183,11 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$Y(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$Z(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     const _component_status_bar = vue.resolveComponent("status-bar");
     const _component_uni_icons = resolveEasycom(vue.resolveDynamicComponent("uni-icons"), __easycom_1$8);
     return vue.openBlock(), vue.createElementBlock(
@@ -553,6 +1342,7 @@ if (uni.restoreGlobal) {
       /* CLASS */
     );
   }
+<<<<<<< HEAD
   const __easycom_0$2 = /* @__PURE__ */ _export_sfc(_sfc_main$$, [["render", _sfc_render$Y], ["__scopeId", "data-v-2418a380"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-nav-bar/uni-nav-bar.vue"]]);
   const _sfc_main$_ = {
     name: "waterfall",
@@ -748,6 +1538,9 @@ if (uni.restoreGlobal) {
       image: "/static/tool/nxbz.png"
     }
   ];
+=======
+  const __easycom_0$2 = /* @__PURE__ */ _export_sfc(_sfc_main$_, [["render", _sfc_render$Z], ["__scopeId", "data-v-2418a380"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-nav-bar/uni-nav-bar.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const goodsList = [
     {
       id: 1,
@@ -1163,6 +1956,1158 @@ if (uni.restoreGlobal) {
       }
     ]
   };
+<<<<<<< HEAD
+=======
+  const typeList = [
+    {
+      code: 1,
+      name: "商品分类1",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        },
+        {
+          id: 13,
+          name: "二级分类13",
+          image: "/static/category.png"
+        },
+        {
+          id: 14,
+          name: "二级分类14",
+          image: "/static/category.png"
+        },
+        {
+          id: 15,
+          name: "二级分类15",
+          image: "/static/category.png"
+        },
+        {
+          id: 16,
+          name: "二级分类16",
+          image: "/static/category.png"
+        },
+        {
+          id: 17,
+          name: "二级分类17",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 2,
+      name: "商品分类2",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        },
+        {
+          id: 13,
+          name: "二级分类13",
+          image: "/static/category.png"
+        },
+        {
+          id: 14,
+          name: "二级分类14",
+          image: "/static/category.png"
+        },
+        {
+          id: 15,
+          name: "二级分类15",
+          image: "/static/category.png"
+        },
+        {
+          id: 16,
+          name: "二级分类16",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 3,
+      name: "商品分类3",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        },
+        {
+          id: 13,
+          name: "二级分类13",
+          image: "/static/category.png"
+        },
+        {
+          id: 14,
+          name: "二级分类14",
+          image: "/static/category.png"
+        },
+        {
+          id: 15,
+          name: "二级分类15",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 4,
+      name: "商品分类4",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        },
+        {
+          id: 13,
+          name: "二级分类13",
+          image: "/static/category.png"
+        },
+        {
+          id: 14,
+          name: "二级分类14",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 5,
+      name: "商品分类5",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        },
+        {
+          id: 13,
+          name: "二级分类13",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 6,
+      name: "商品分类6",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 7,
+      name: "商品分类7",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 8,
+      name: "商品分类8",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 9,
+      name: "商品分类9",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 10,
+      name: "商品分类10",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 11,
+      name: "商品分类11",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 12,
+      name: "商品分类12",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 13,
+      name: "商品分类13",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 14,
+      name: "商品分类14",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 15,
+      name: "商品分类15",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 16,
+      name: "商品分类16",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    },
+    {
+      code: 17,
+      name: "商品分类17",
+      children: [
+        {
+          id: 1,
+          name: "二级分类1",
+          image: "/static/category.png"
+        },
+        {
+          id: 2,
+          name: "二级分类2",
+          image: "/static/category.png"
+        },
+        {
+          id: 3,
+          name: "二级分类3",
+          image: "/static/category.png"
+        },
+        {
+          id: 4,
+          name: "二级分类4",
+          image: "/static/category.png"
+        },
+        {
+          id: 5,
+          name: "二级分类5",
+          image: "/static/category.png"
+        },
+        {
+          id: 6,
+          name: "二级分类6",
+          image: "/static/category.png"
+        },
+        {
+          id: 7,
+          name: "二级分类7",
+          image: "/static/category.png"
+        },
+        {
+          id: 8,
+          name: "二级分类8",
+          image: "/static/category.png"
+        },
+        {
+          id: 9,
+          name: "二级分类9",
+          image: "/static/category.png"
+        },
+        {
+          id: 10,
+          name: "二级分类10",
+          image: "/static/category.png"
+        },
+        {
+          id: 11,
+          name: "二级分类11",
+          image: "/static/category.png"
+        },
+        {
+          id: 12,
+          name: "二级分类12",
+          image: "/static/category.png"
+        }
+      ]
+    }
+  ];
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const addressList = [
     {
       code: 1,
@@ -3010,6 +4955,7 @@ if (uni.restoreGlobal) {
     data() {
       return {
         Theme: "",
+<<<<<<< HEAD
         // 是否首页哀悼模式
         isMourn: false,
         // banner图设置参数
@@ -3028,20 +4974,37 @@ if (uni.restoreGlobal) {
     components: {
       uniNavBar: __easycom_0$2,
       waterfall: __easycom_1$7
+=======
+        // 内容高度
+        contentHeight: "",
+        // 商品类型
+        typeList: [],
+        typeCode: 1
+      };
+    },
+    components: {
+      uniNavBar: __easycom_0$2
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
     onShow() {
       this.Theme = this.$store.state.Theme;
+<<<<<<< HEAD
       if (this.isMourn) {
         this.Theme = this.$store.state.Theme + this.$store.state.mourningStyle;
       }
+=======
+      this.contentHeight = uni.getSystemInfoSync().screenHeight - uni.upx2px(188) + "px";
+      this.typeList = typeList;
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
       uni.setTabBarStyle({
         selectedColor: this.Theme.split(/\;|\:/)[1]
       });
       if (this.sjuLogin.getValue("themeName") != "") {
         this.sjuTools.setTabBar();
       }
+<<<<<<< HEAD
       this.setcartNum();
       this.swiperList = bannerList;
       this.menuList = menuList;
@@ -3077,6 +5040,18 @@ if (uni.restoreGlobal) {
   function _sfc_render$W(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$7);
+=======
+    },
+    methods: {
+      // 选择商品分类
+      changeType(code) {
+        this.typeCode = code;
+      }
+    }
+  };
+  function _sfc_render$Y(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -3086,6 +5061,7 @@ if (uni.restoreGlobal) {
         vue.createVNode(_component_uni_nav_bar, {
           statusBar: true,
           fixed: "true",
+<<<<<<< HEAD
           title: "电商平台案例"
         }),
         vue.createCommentVNode(" banner图 "),
@@ -3290,12 +5266,83 @@ if (uni.restoreGlobal) {
           vue.toDisplayString($data.loadingText),
           1
           /* TEXT */
+=======
+          title: "分类"
+        }),
+        vue.createCommentVNode(" 分类内容 "),
+        vue.createElementVNode(
+          "view",
+          {
+            class: "content",
+            style: vue.normalizeStyle({ "height": $data.contentHeight })
+          },
+          [
+            vue.createCommentVNode(" 左侧 "),
+            vue.createElementVNode("view", { class: "contentLeft" }, [
+              vue.createElementVNode("scroll-view", {
+                "scroll-y": "",
+                class: "content-list"
+              }, [
+                (vue.openBlock(true), vue.createElementBlock(
+                  vue.Fragment,
+                  null,
+                  vue.renderList($data.typeList, (item, index) => {
+                    return vue.openBlock(), vue.createElementBlock("view", {
+                      class: vue.normalizeClass(["itemType", { "active": $data.typeCode == item.code }]),
+                      key: index,
+                      onClick: ($event) => $options.changeType(item.code)
+                    }, vue.toDisplayString(item.name), 11, ["onClick"]);
+                  }),
+                  128
+                  /* KEYED_FRAGMENT */
+                ))
+              ])
+            ]),
+            vue.createCommentVNode(" 右侧 "),
+            vue.createElementVNode("view", { class: "contentRight" }, [
+              vue.createCommentVNode(" 滚动视图 "),
+              vue.createElementVNode("scroll-view", {
+                "scroll-y": true,
+                class: "scroll"
+              }, [
+                vue.createElementVNode("view", { class: "classify-list" }, [
+                  (vue.openBlock(true), vue.createElementBlock(
+                    vue.Fragment,
+                    null,
+                    vue.renderList($data.typeList[$data.typeCode - 1].children, (item, index) => {
+                      return vue.openBlock(), vue.createElementBlock("view", {
+                        class: "list",
+                        key: index
+                      }, [
+                        vue.createElementVNode("image", {
+                          src: item.image
+                        }, null, 8, ["src"]),
+                        vue.createElementVNode(
+                          "text",
+                          null,
+                          vue.toDisplayString(item.name),
+                          1
+                          /* TEXT */
+                        )
+                      ]);
+                    }),
+                    128
+                    /* KEYED_FRAGMENT */
+                  ))
+                ])
+              ])
+            ])
+          ],
+          4
+          /* STYLE */
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
         )
       ],
       4
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const PagesTabIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$Z, [["render", _sfc_render$W], ["__scopeId", "data-v-96c89826"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/pages/tab/index/index.vue"]]);
   const _sfc_main$Y = {
     __name: "classify",
@@ -3337,6 +5384,10 @@ if (uni.restoreGlobal) {
   };
   const PagesTabClassifyClassify = /* @__PURE__ */ _export_sfc(_sfc_main$Y, [["__scopeId", "data-v-346677f6"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/pages/tab/classify/classify.vue"]]);
   const _sfc_main$X = {
+=======
+  const PagesTabClassifyClassify = /* @__PURE__ */ _export_sfc(_sfc_main$Z, [["render", _sfc_render$Y], ["__scopeId", "data-v-346677f6"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/pages/tab/classify/classify.vue"]]);
+  const _sfc_main$Y = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     name: "UniNumberMinBox",
     emits: ["change", "input", "update:modelValue", "blur", "focus"],
     props: {
@@ -3460,7 +5511,11 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$V(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$X(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock("view", { class: "uni-numbox" }, [
       vue.createElementVNode("view", {
         onClick: _cache[0] || (_cache[0] = vue.withModifiers(($event) => $options._calcValue("minus"), ["stop"])),
@@ -3510,8 +5565,13 @@ if (uni.restoreGlobal) {
       )
     ]);
   }
+<<<<<<< HEAD
   const __easycom_0$1 = /* @__PURE__ */ _export_sfc(_sfc_main$X, [["render", _sfc_render$V], ["__scopeId", "data-v-147fd3bd"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-number-minbox/uni-number-minbox.vue"]]);
   const _sfc_main$W = {
+=======
+  const __easycom_0$1 = /* @__PURE__ */ _export_sfc(_sfc_main$Y, [["render", _sfc_render$X], ["__scopeId", "data-v-147fd3bd"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-number-minbox/uni-number-minbox.vue"]]);
+  const _sfc_main$X = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     data() {
       return {};
     },
@@ -3527,7 +5587,11 @@ if (uni.restoreGlobal) {
     },
     methods: {}
   };
+<<<<<<< HEAD
   function _sfc_render$U(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$W(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock("view", null, [
       vue.createElementVNode("view", { class: "noData" }, [
         vue.createElementVNode(
@@ -3550,8 +5614,13 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
+<<<<<<< HEAD
   const __easycom_1$6 = /* @__PURE__ */ _export_sfc(_sfc_main$W, [["render", _sfc_render$U], ["__scopeId", "data-v-b8a06778"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-empty/sju-empty.vue"]]);
   const _sfc_main$V = {
+=======
+  const __easycom_1$7 = /* @__PURE__ */ _export_sfc(_sfc_main$X, [["render", _sfc_render$W], ["__scopeId", "data-v-b8a06778"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-empty/sju-empty.vue"]]);
+  const _sfc_main$W = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     data() {
       return {
         Theme: "",
@@ -3583,7 +5652,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6,
+=======
+      Empty: __easycom_1$7,
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
       uninumberbox: __easycom_0$1
     },
     onLoad() {
@@ -3708,10 +5781,17 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$T(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_number_minbox = resolveEasycom(vue.resolveDynamicComponent("uni-number-minbox"), __easycom_0$1);
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+  function _sfc_render$V(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+    const _component_uni_number_minbox = resolveEasycom(vue.resolveDynamicComponent("uni-number-minbox"), __easycom_0$1);
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -3938,8 +6018,13 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const PagesTabCartCart = /* @__PURE__ */ _export_sfc(_sfc_main$V, [["render", _sfc_render$T], ["__scopeId", "data-v-202632bf"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/pages/tab/cart/cart.vue"]]);
   const _sfc_main$U = {
+=======
+  const PagesTabCartCart = /* @__PURE__ */ _export_sfc(_sfc_main$W, [["render", _sfc_render$V], ["__scopeId", "data-v-202632bf"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/pages/tab/cart/cart.vue"]]);
+  const _sfc_main$V = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     name: "menuList",
     data() {
       return {};
@@ -3986,7 +6071,11 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$S(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$U(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -4043,8 +6132,13 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const __easycom_1$5 = /* @__PURE__ */ _export_sfc(_sfc_main$U, [["render", _sfc_render$S], ["__scopeId", "data-v-1cf3415c"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/menuList/menuList.vue"]]);
   const _sfc_main$T = {
+=======
+  const __easycom_1$6 = /* @__PURE__ */ _export_sfc(_sfc_main$V, [["render", _sfc_render$U], ["__scopeId", "data-v-1cf3415c"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/menuList/menuList.vue"]]);
+  const _sfc_main$U = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     data() {
       return {
         Theme: "",
@@ -4056,7 +6150,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       menuList: __easycom_1$5
+=======
+      menuList: __easycom_1$6
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -4076,9 +6174,15 @@ if (uni.restoreGlobal) {
       }
     }
   };
+<<<<<<< HEAD
   function _sfc_render$R(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_menuList = resolveEasycom(vue.resolveDynamicComponent("menuList"), __easycom_1$5);
+=======
+  function _sfc_render$T(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+    const _component_menuList = resolveEasycom(vue.resolveDynamicComponent("menuList"), __easycom_1$6);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -4261,6 +6365,7 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const PagesTabMyMy = /* @__PURE__ */ _export_sfc(_sfc_main$T, [["render", _sfc_render$R], ["__scopeId", "data-v-b2eb4eed"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/pages/tab/my/my.vue"]]);
   function bind(fn, thisArg) {
     return function wrap() {
@@ -6335,6 +8440,80 @@ if (uni.restoreGlobal) {
   };
   const Sub_intakePagesLoginLogin = /* @__PURE__ */ _export_sfc(_sfc_main$S, [["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_intake/pages/login/login.vue"]]);
   const _sfc_main$R = {
+=======
+  const PagesTabMyMy = /* @__PURE__ */ _export_sfc(_sfc_main$U, [["render", _sfc_render$T], ["__scopeId", "data-v-b2eb4eed"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/pages/tab/my/my.vue"]]);
+  const _sfc_main$T = {
+    data() {
+      return {
+        Theme: ""
+      };
+    },
+    components: {
+      uniNavBar: __easycom_0$2
+    },
+    onLoad() {
+    },
+    onShow() {
+      this.Theme = this.$store.state.Theme;
+    },
+    methods: {
+      navTo(path) {
+        this.sjuNav.navigateTo(path);
+      }
+    }
+  };
+  function _sfc_render$S(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+    return vue.openBlock(), vue.createElementBlock(
+      "view",
+      {
+        style: vue.normalizeStyle($data.Theme)
+      },
+      [
+        vue.createVNode(_component_uni_nav_bar, {
+          leftIcon: "arrowleft",
+          fixed: "true",
+          title: "登录"
+        }),
+        vue.createElementVNode("view", { class: "logo" }, [
+          vue.createElementVNode("image", { src: "/static/logo.png" })
+        ]),
+        vue.createElementVNode("view", { class: "loginForm" }, [
+          vue.createElementVNode("view", { class: "row-input" }, [
+            vue.createElementVNode("i", { class: "iconfont icon-shouji" }),
+            vue.createElementVNode("input", {
+              placeholder: "请输入手机号",
+              maxlength: "11",
+              "placeholder-class": "placeholder"
+            })
+          ]),
+          vue.createElementVNode("view", { class: "row-input" }, [
+            vue.createElementVNode("i", { class: "iconfont icon-mima" }),
+            vue.createElementVNode("input", {
+              placeholder: "请输入密码",
+              maxlength: "18",
+              password: "",
+              "placeholder-class": "placeholder"
+            })
+          ]),
+          vue.createElementVNode("view", { class: "loginBtn" }, "立即登录"),
+          vue.createElementVNode("view", { class: "menuLink" }, [
+            vue.createElementVNode("text", {
+              onClick: _cache[0] || (_cache[0] = ($event) => $options.navTo("/intake/register"))
+            }, "注册账号"),
+            vue.createElementVNode("text", {
+              onClick: _cache[1] || (_cache[1] = ($event) => $options.navTo("/intake/forget"))
+            }, "忘记密码")
+          ])
+        ])
+      ],
+      4
+      /* STYLE */
+    );
+  }
+  const Sub_intakePagesLoginLogin = /* @__PURE__ */ _export_sfc(_sfc_main$T, [["render", _sfc_render$S], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_intake/pages/login/login.vue"]]);
+  const _sfc_main$S = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     data() {
       return {
         Theme: ""
@@ -6350,7 +8529,11 @@ if (uni.restoreGlobal) {
     },
     methods: {}
   };
+<<<<<<< HEAD
   function _sfc_render$Q(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$R(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     return vue.openBlock(), vue.createElementBlock(
       "view",
@@ -6414,8 +8597,13 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_intakePagesRegisterRegister = /* @__PURE__ */ _export_sfc(_sfc_main$R, [["render", _sfc_render$Q], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_intake/pages/register/register.vue"]]);
   const _sfc_main$Q = {
+=======
+  const Sub_intakePagesRegisterRegister = /* @__PURE__ */ _export_sfc(_sfc_main$S, [["render", _sfc_render$R], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_intake/pages/register/register.vue"]]);
+  const _sfc_main$R = {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     data() {
       return {
         Theme: ""
@@ -6431,7 +8619,11 @@ if (uni.restoreGlobal) {
     },
     methods: {}
   };
+<<<<<<< HEAD
   function _sfc_render$P(_ctx, _cache, $props, $setup, $data, $options) {
+=======
+  function _sfc_render$Q(_ctx, _cache, $props, $setup, $data, $options) {
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     return vue.openBlock(), vue.createElementBlock(
       "view",
@@ -6483,7 +8675,119 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_intakePagesForgetForget = /* @__PURE__ */ _export_sfc(_sfc_main$Q, [["render", _sfc_render$P], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_intake/pages/forget/forget.vue"]]);
+=======
+  const Sub_intakePagesForgetForget = /* @__PURE__ */ _export_sfc(_sfc_main$R, [["render", _sfc_render$Q], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_intake/pages/forget/forget.vue"]]);
+  const _sfc_main$Q = {
+    name: "waterfall",
+    data() {
+      return {
+        leftList: [],
+        //左边的数据
+        rightList: []
+        //右边的数据
+      };
+    },
+    props: {
+      // 每次向结构插入数据的时间间隔，间隔越长，越能保证两列高度相近，但是对用户体验越不好
+      // 单位ms
+      addTime: {
+        type: [Number, String],
+        default: 50
+      }
+    },
+    methods: {
+      // 清空数据
+      onDel() {
+        this.leftList = [];
+        this.rightList = [];
+      },
+      // 设置数据
+      setData(data) {
+        if (!Array.isArray(data) || data.length === 0)
+          return;
+        this.setSplitData(data);
+      },
+      // 设置瀑布流数据
+      async setSplitData(data = []) {
+        if (!Array.isArray(data) || data.length === 0)
+          return;
+        let data_deepClone = this.deepClone(data);
+        let lefrRect = await this.getRect("#left-column");
+        let rightRect = await this.getRect("#right-column");
+        let item = data_deepClone[0];
+        if (!item)
+          return;
+        if (lefrRect.height < rightRect.height) {
+          this.leftList.push(item);
+        } else if (lefrRect.height > rightRect.height) {
+          this.rightList.push(item);
+        } else {
+          this.leftList.length <= this.rightList.length ? this.leftList.push(item) : this.rightList.push(item);
+        }
+        data_deepClone.splice(0, 1);
+        if (data_deepClone.length) {
+          setTimeout(() => {
+            this.setSplitData(data_deepClone);
+          }, this.addTime);
+        }
+      },
+      deepClone(target, map = /* @__PURE__ */ new Map()) {
+        if (target !== null && typeof target === "object") {
+          let cloneTarget = map.get(target);
+          if (cloneTarget) {
+            return cloneTarget;
+          }
+          if (target instanceof Array) {
+            cloneTarget = [];
+            map.set(target, cloneTarget);
+            target.forEach((item, index) => {
+              cloneTarget[index] = this.deepClone(item, map);
+            });
+          } else {
+            cloneTarget = {};
+            map.set(target, cloneTarget);
+            Object.keys(target).forEach((key) => {
+              cloneTarget[key] = this.deepClone(target[key], map);
+            });
+          }
+          return cloneTarget;
+        }
+        return target;
+      },
+      // 查询节点信息
+      getRect(id) {
+        if (!id)
+          return "";
+        return new Promise((resolve) => {
+          const query = uni.createSelectorQuery().in(this);
+          query.select(id).boundingClientRect((data) => {
+            resolve(data);
+          }).exec();
+        }).catch((e) => {
+        });
+      }
+    }
+  };
+  function _sfc_render$P(_ctx, _cache, $props, $setup, $data, $options) {
+    return vue.openBlock(), vue.createElementBlock("view", { class: "waterfall" }, [
+      vue.createElementVNode("view", {
+        class: "column",
+        id: "left-column"
+      }, [
+        vue.renderSlot(_ctx.$slots, "left", { leftList: $data.leftList }, void 0, true)
+      ]),
+      vue.createElementVNode("view", {
+        class: "column",
+        id: "right-column"
+      }, [
+        vue.renderSlot(_ctx.$slots, "right", { rightList: $data.rightList }, void 0, true)
+      ])
+    ]);
+  }
+  const __easycom_1$5 = /* @__PURE__ */ _export_sfc(_sfc_main$Q, [["render", _sfc_render$P], ["__scopeId", "data-v-8e26fd7f"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/waterfall/waterfall.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$P = {
     name: "UniDrawer",
     components: {},
@@ -6592,7 +8896,11 @@ if (uni.restoreGlobal) {
       /* CLASS, HYDRATE_EVENTS */
     )) : vue.createCommentVNode("v-if", true);
   }
+<<<<<<< HEAD
   const __easycom_3$1 = /* @__PURE__ */ _export_sfc(_sfc_main$P, [["render", _sfc_render$O], ["__scopeId", "data-v-07da3825"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-drawer/uni-drawer.vue"]]);
+=======
+  const __easycom_3$1 = /* @__PURE__ */ _export_sfc(_sfc_main$P, [["render", _sfc_render$O], ["__scopeId", "data-v-07da3825"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-drawer/uni-drawer.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$O = {
     data() {
       return {
@@ -6667,7 +8975,11 @@ if (uni.restoreGlobal) {
     components: {
       uniNavBar: __easycom_0$2,
       uniDrawer: __easycom_3$1,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -6727,9 +9039,15 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$N(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$7);
     const _component_uni_drawer = resolveEasycom(vue.resolveDynamicComponent("uni-drawer"), __easycom_3$1);
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$5);
+    const _component_uni_drawer = resolveEasycom(vue.resolveDynamicComponent("uni-drawer"), __easycom_3$1);
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -7263,7 +9581,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesGoodsListGoodsList = /* @__PURE__ */ _export_sfc(_sfc_main$O, [["render", _sfc_render$N], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/goodsList/goodsList.vue"]]);
+=======
+  const Sub_goodsPagesGoodsListGoodsList = /* @__PURE__ */ _export_sfc(_sfc_main$O, [["render", _sfc_render$N], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/goodsList/goodsList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$N = {
     name: "sju-service",
     emits: ["show", "hide"],
@@ -7350,7 +9672,11 @@ if (uni.restoreGlobal) {
       [vue.vShow, $data.isShow]
     ]);
   }
+<<<<<<< HEAD
   const __easycom_1$4 = /* @__PURE__ */ _export_sfc(_sfc_main$N, [["render", _sfc_render$M], ["__scopeId", "data-v-72a918d6"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-service/sju-service.vue"]]);
+=======
+  const __easycom_1$4 = /* @__PURE__ */ _export_sfc(_sfc_main$N, [["render", _sfc_render$M], ["__scopeId", "data-v-72a918d6"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-service/sju-service.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$M = {
     name: "sju-coupon",
     emits: ["show", "hide", "receive"],
@@ -7487,7 +9813,11 @@ if (uni.restoreGlobal) {
       [vue.vShow, $data.isShow]
     ]);
   }
+<<<<<<< HEAD
   const __easycom_1$3 = /* @__PURE__ */ _export_sfc(_sfc_main$M, [["render", _sfc_render$L], ["__scopeId", "data-v-b2a35505"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-coupon/sju-coupon.vue"]]);
+=======
+  const __easycom_1$3 = /* @__PURE__ */ _export_sfc(_sfc_main$M, [["render", _sfc_render$L], ["__scopeId", "data-v-b2a35505"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-coupon/sju-coupon.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$L = {
     name: "sju-specs",
     components: {
@@ -7883,7 +10213,11 @@ if (uni.restoreGlobal) {
       [vue.vShow, $data.isShow]
     ]);
   }
+<<<<<<< HEAD
   const __easycom_2$2 = /* @__PURE__ */ _export_sfc(_sfc_main$L, [["render", _sfc_render$K], ["__scopeId", "data-v-531a09dc"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-specs/sju-specs.vue"]]);
+=======
+  const __easycom_2$2 = /* @__PURE__ */ _export_sfc(_sfc_main$L, [["render", _sfc_render$K], ["__scopeId", "data-v-531a09dc"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-specs/sju-specs.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$K = {
     name: "sju-params",
     emits: ["show", "hide"],
@@ -7957,7 +10291,11 @@ if (uni.restoreGlobal) {
       [vue.vShow, $data.isShow]
     ]);
   }
+<<<<<<< HEAD
   const __easycom_3 = /* @__PURE__ */ _export_sfc(_sfc_main$K, [["render", _sfc_render$J], ["__scopeId", "data-v-a212d903"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-params/sju-params.vue"]]);
+=======
+  const __easycom_3 = /* @__PURE__ */ _export_sfc(_sfc_main$K, [["render", _sfc_render$J], ["__scopeId", "data-v-a212d903"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-params/sju-params.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$J = {
     data() {
       return {
@@ -8417,7 +10755,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesGoodsDetailGoodsDetail = /* @__PURE__ */ _export_sfc(_sfc_main$J, [["render", _sfc_render$I], ["__scopeId", "data-v-6c598e28"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/goodsDetail/goodsDetail.vue"]]);
+=======
+  const Sub_goodsPagesGoodsDetailGoodsDetail = /* @__PURE__ */ _export_sfc(_sfc_main$J, [["render", _sfc_render$I], ["__scopeId", "data-v-6c598e28"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/goodsDetail/goodsDetail.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$I = {
     data() {
       return {
@@ -8754,7 +11096,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesCreateOrderCreateOrder = /* @__PURE__ */ _export_sfc(_sfc_main$I, [["render", _sfc_render$H], ["__scopeId", "data-v-f4a8b78c"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/createOrder/createOrder.vue"]]);
+=======
+  const Sub_goodsPagesCreateOrderCreateOrder = /* @__PURE__ */ _export_sfc(_sfc_main$I, [["render", _sfc_render$H], ["__scopeId", "data-v-f4a8b78c"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/createOrder/createOrder.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$H = {
     data() {
       return {
@@ -8884,7 +11230,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesPaymentPayment = /* @__PURE__ */ _export_sfc(_sfc_main$H, [["render", _sfc_render$G], ["__scopeId", "data-v-d085fc32"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/payment/payment.vue"]]);
+=======
+  const Sub_goodsPagesPaymentPayment = /* @__PURE__ */ _export_sfc(_sfc_main$H, [["render", _sfc_render$G], ["__scopeId", "data-v-d085fc32"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/payment/payment.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$G = {
     name: "UniRate",
     props: {
@@ -9150,7 +11500,11 @@ if (uni.restoreGlobal) {
       )
     ]);
   }
+<<<<<<< HEAD
   const __easycom_1$2 = /* @__PURE__ */ _export_sfc(_sfc_main$G, [["render", _sfc_render$F], ["__scopeId", "data-v-20c44170"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-rate/uni-rate.vue"]]);
+=======
+  const __easycom_1$2 = /* @__PURE__ */ _export_sfc(_sfc_main$G, [["render", _sfc_render$F], ["__scopeId", "data-v-20c44170"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-rate/uni-rate.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$F = {
     data() {
       return {
@@ -9320,7 +11674,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesEvaluateListEvaluateList = /* @__PURE__ */ _export_sfc(_sfc_main$F, [["render", _sfc_render$E], ["__scopeId", "data-v-660a3cf2"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/evaluateList/evaluateList.vue"]]);
+=======
+  const Sub_goodsPagesEvaluateListEvaluateList = /* @__PURE__ */ _export_sfc(_sfc_main$F, [["render", _sfc_render$E], ["__scopeId", "data-v-660a3cf2"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/evaluateList/evaluateList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$E = {
     name: "sju-time",
     emits: ["onChange"],
@@ -9408,7 +11766,11 @@ if (uni.restoreGlobal) {
       ))
     ], 8, ["scroll-left"]);
   }
+<<<<<<< HEAD
   const sjuTime = /* @__PURE__ */ _export_sfc(_sfc_main$E, [["render", _sfc_render$D], ["__scopeId", "data-v-abf4fea9"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-time/sju-time.vue"]]);
+=======
+  const sjuTime = /* @__PURE__ */ _export_sfc(_sfc_main$E, [["render", _sfc_render$D], ["__scopeId", "data-v-abf4fea9"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-time/sju-time.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$D = {
     data() {
       return {
@@ -9532,7 +11894,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesSeckillListSeckillList = /* @__PURE__ */ _export_sfc(_sfc_main$D, [["render", _sfc_render$C], ["__scopeId", "data-v-a7e325d3"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/seckillList/seckillList.vue"]]);
+=======
+  const Sub_goodsPagesSeckillListSeckillList = /* @__PURE__ */ _export_sfc(_sfc_main$D, [["render", _sfc_render$C], ["__scopeId", "data-v-a7e325d3"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/seckillList/seckillList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$C = {
     data() {
       return {
@@ -9651,7 +12017,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_goodsPagesCollageListCollageList = /* @__PURE__ */ _export_sfc(_sfc_main$C, [["render", _sfc_render$B], ["__scopeId", "data-v-661e33ca"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_goods/pages/collageList/collageList.vue"]]);
+=======
+  const Sub_goodsPagesCollageListCollageList = /* @__PURE__ */ _export_sfc(_sfc_main$C, [["render", _sfc_render$B], ["__scopeId", "data-v-661e33ca"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_goods/pages/collageList/collageList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$B = {
     data() {
       return {
@@ -9664,7 +12034,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -9681,7 +12055,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$A(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -9780,7 +12158,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_couponPagesCouponCenterCouponCenter = /* @__PURE__ */ _export_sfc(_sfc_main$B, [["render", _sfc_render$A], ["__scopeId", "data-v-ccd3f20c"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_coupon/pages/couponCenter/couponCenter.vue"]]);
+=======
+  const Sub_couponPagesCouponCenterCouponCenter = /* @__PURE__ */ _export_sfc(_sfc_main$B, [["render", _sfc_render$A], ["__scopeId", "data-v-ccd3f20c"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_coupon/pages/couponCenter/couponCenter.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$A = {
     data() {
       return {
@@ -9851,7 +12233,11 @@ if (uni.restoreGlobal) {
     components: {
       uniNavBar: __easycom_0$2,
       uniDrawer: __easycom_3$1,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -9897,7 +12283,11 @@ if (uni.restoreGlobal) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_rate = resolveEasycom(vue.resolveDynamicComponent("uni-rate"), __easycom_1$2);
     const _component_uni_drawer = resolveEasycom(vue.resolveDynamicComponent("uni-drawer"), __easycom_3$1);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -10183,7 +12573,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_storePagesStoreListStoreList = /* @__PURE__ */ _export_sfc(_sfc_main$A, [["render", _sfc_render$z], ["__scopeId", "data-v-cf7d60af"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_store/pages/storeList/storeList.vue"]]);
+=======
+  const Sub_storePagesStoreListStoreList = /* @__PURE__ */ _export_sfc(_sfc_main$A, [["render", _sfc_render$z], ["__scopeId", "data-v-cf7d60af"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_store/pages/storeList/storeList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$z = {
     data() {
       return {
@@ -10259,7 +12653,11 @@ if (uni.restoreGlobal) {
     components: {
       uniNavBar: __easycom_0$2,
       uniDrawer: __easycom_3$1,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad(options) {
       this.storeCode = options.code;
@@ -10315,9 +12713,15 @@ if (uni.restoreGlobal) {
   function _sfc_render$y(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_rate = resolveEasycom(vue.resolveDynamicComponent("uni-rate"), __easycom_1$2);
+<<<<<<< HEAD
     const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$7);
     const _component_uni_drawer = resolveEasycom(vue.resolveDynamicComponent("uni-drawer"), __easycom_3$1);
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$5);
+    const _component_uni_drawer = resolveEasycom(vue.resolveDynamicComponent("uni-drawer"), __easycom_3$1);
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -10863,7 +13267,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_storePagesStoreDetailStoreDetail = /* @__PURE__ */ _export_sfc(_sfc_main$z, [["render", _sfc_render$y], ["__scopeId", "data-v-8b295943"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_store/pages/storeDetail/storeDetail.vue"]]);
+=======
+  const Sub_storePagesStoreDetailStoreDetail = /* @__PURE__ */ _export_sfc(_sfc_main$z, [["render", _sfc_render$y], ["__scopeId", "data-v-8b295943"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_store/pages/storeDetail/storeDetail.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   var calendar = {
     /**
         * 农历1900-2100的润大小信息表
@@ -12471,7 +14879,11 @@ if (uni.restoreGlobal) {
       /* CLASS, STYLE */
     );
   }
+<<<<<<< HEAD
   const calendarItem = /* @__PURE__ */ _export_sfc(_sfc_main$y, [["render", _sfc_render$x], ["__scopeId", "data-v-7e6435b4"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_sign/components/uni-calendar/uni-calendar-item.vue"]]);
+=======
+  const calendarItem = /* @__PURE__ */ _export_sfc(_sfc_main$y, [["render", _sfc_render$x], ["__scopeId", "data-v-7e6435b4"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_sign/components/uni-calendar/uni-calendar-item.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const { t } = initVueI18n(messages);
   const _sfc_main$x = {
     components: {
@@ -12950,7 +15362,11 @@ if (uni.restoreGlobal) {
       )) : vue.createCommentVNode("v-if", true)
     ]);
   }
+<<<<<<< HEAD
   const uniCalendar = /* @__PURE__ */ _export_sfc(_sfc_main$x, [["render", _sfc_render$w], ["__scopeId", "data-v-ea074388"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_sign/components/uni-calendar/uni-calendar.vue"]]);
+=======
+  const uniCalendar = /* @__PURE__ */ _export_sfc(_sfc_main$x, [["render", _sfc_render$w], ["__scopeId", "data-v-ea074388"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_sign/components/uni-calendar/uni-calendar.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$w = {
     data() {
       return {
@@ -13092,7 +15508,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_signPagesSignInSignIn = /* @__PURE__ */ _export_sfc(_sfc_main$w, [["render", _sfc_render$v], ["__scopeId", "data-v-a25a2aca"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_sign/pages/signIn/signIn.vue"]]);
+=======
+  const Sub_signPagesSignInSignIn = /* @__PURE__ */ _export_sfc(_sfc_main$w, [["render", _sfc_render$v], ["__scopeId", "data-v-a25a2aca"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_sign/pages/signIn/signIn.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$v = {
     data() {
       return {
@@ -13316,7 +15736,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_memberPagesMemberCenterMemberCenter = /* @__PURE__ */ _export_sfc(_sfc_main$v, [["render", _sfc_render$u], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_member/pages/memberCenter/memberCenter.vue"]]);
+=======
+  const Sub_memberPagesMemberCenterMemberCenter = /* @__PURE__ */ _export_sfc(_sfc_main$v, [["render", _sfc_render$u], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_member/pages/memberCenter/memberCenter.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$u = {
     name: "flopLottery",
     emits: ["show", "drawAgain"],
@@ -13509,7 +15933,11 @@ if (uni.restoreGlobal) {
       /* STABLE_FRAGMENT */
     );
   }
+<<<<<<< HEAD
   const flopLottery = /* @__PURE__ */ _export_sfc(_sfc_main$u, [["render", _sfc_render$t], ["__scopeId", "data-v-773dca8f"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_lottery/components/flopLottery/flopLottery.vue"]]);
+=======
+  const flopLottery = /* @__PURE__ */ _export_sfc(_sfc_main$u, [["render", _sfc_render$t], ["__scopeId", "data-v-773dca8f"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_lottery/components/flopLottery/flopLottery.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$t = {
     data() {
       return {
@@ -13635,7 +16063,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_lotteryPagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$t, [["render", _sfc_render$s], ["__scopeId", "data-v-fc821b27"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_lottery/pages/index/index.vue"]]);
+=======
+  const Sub_lotteryPagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$t, [["render", _sfc_render$s], ["__scopeId", "data-v-fc821b27"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_lottery/pages/index/index.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$s = {
     data() {
       return {
@@ -13659,7 +16091,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$r(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -13730,7 +16166,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_lotteryPagesLotteryListLotteryList = /* @__PURE__ */ _export_sfc(_sfc_main$s, [["render", _sfc_render$r], ["__scopeId", "data-v-f06db718"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_lottery/pages/lotteryList/lotteryList.vue"]]);
+=======
+  const Sub_lotteryPagesLotteryListLotteryList = /* @__PURE__ */ _export_sfc(_sfc_main$s, [["render", _sfc_render$r], ["__scopeId", "data-v-f06db718"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_lottery/pages/lotteryList/lotteryList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$r = {
     data() {
       return {
@@ -13765,7 +16205,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -13807,7 +16251,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$q(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$7);
+=======
+    const _component_waterfall = resolveEasycom(vue.resolveDynamicComponent("waterfall"), __easycom_1$5);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -14120,7 +16568,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_exchangePagesExchangeListExchangeList = /* @__PURE__ */ _export_sfc(_sfc_main$r, [["render", _sfc_render$q], ["__scopeId", "data-v-d61e3fe1"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_exchange/pages/exchangeList/exchangeList.vue"]]);
+=======
+  const Sub_exchangePagesExchangeListExchangeList = /* @__PURE__ */ _export_sfc(_sfc_main$r, [["render", _sfc_render$q], ["__scopeId", "data-v-d61e3fe1"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_exchange/pages/exchangeList/exchangeList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$q = {
     data() {
       return {
@@ -14518,7 +16970,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_exchangePagesScoreGoodsScoreGoods = /* @__PURE__ */ _export_sfc(_sfc_main$q, [["render", _sfc_render$p], ["__scopeId", "data-v-c45677be"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_exchange/pages/scoreGoods/scoreGoods.vue"]]);
+=======
+  const Sub_exchangePagesScoreGoodsScoreGoods = /* @__PURE__ */ _export_sfc(_sfc_main$q, [["render", _sfc_render$p], ["__scopeId", "data-v-c45677be"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_exchange/pages/scoreGoods/scoreGoods.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$p = {
     name: "Modal",
     data() {
@@ -14581,7 +17037,11 @@ if (uni.restoreGlobal) {
       /* CLASS */
     );
   }
+<<<<<<< HEAD
   const __easycom_2$1 = /* @__PURE__ */ _export_sfc(_sfc_main$p, [["render", _sfc_render$o], ["__scopeId", "data-v-be64d476"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/Modal/Modal.vue"]]);
+=======
+  const __easycom_2$1 = /* @__PURE__ */ _export_sfc(_sfc_main$p, [["render", _sfc_render$o], ["__scopeId", "data-v-be64d476"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/Modal/Modal.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const themeList = [
     {
       value: [
@@ -14830,7 +17290,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       menuList: __easycom_1$5,
+=======
+      menuList: __easycom_1$6,
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
       Modal: __easycom_2$1
     },
     onLoad() {
@@ -14872,7 +17336,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$n(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_menuList = resolveEasycom(vue.resolveDynamicComponent("menuList"), __easycom_1$5);
+=======
+    const _component_menuList = resolveEasycom(vue.resolveDynamicComponent("menuList"), __easycom_1$6);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     const _component_Modal = resolveEasycom(vue.resolveDynamicComponent("Modal"), __easycom_2$1);
     return vue.openBlock(), vue.createElementBlock(
       "view",
@@ -14953,7 +17421,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesSettingSetting = /* @__PURE__ */ _export_sfc(_sfc_main$o, [["render", _sfc_render$n], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/setting/setting.vue"]]);
+=======
+  const Sub_myPagesSettingSetting = /* @__PURE__ */ _export_sfc(_sfc_main$o, [["render", _sfc_render$n], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/setting/setting.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$n = {
     data() {
       return {
@@ -15031,7 +17503,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesThemeTheme = /* @__PURE__ */ _export_sfc(_sfc_main$n, [["render", _sfc_render$m], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/theme/theme.vue"]]);
+=======
+  const Sub_myPagesThemeTheme = /* @__PURE__ */ _export_sfc(_sfc_main$n, [["render", _sfc_render$m], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/theme/theme.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   let mpMixins = {};
   mpMixins = {
     data() {
@@ -15273,7 +17749,11 @@ if (uni.restoreGlobal) {
     block0(_sfc_main$m);
   if (typeof block1 === "function")
     block1(_sfc_main$m);
+<<<<<<< HEAD
   const __easycom_1$1 = /* @__PURE__ */ _export_sfc(_sfc_main$m, [["render", _sfc_render$l], ["__scopeId", "data-v-3ebdcd95"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-swipe-action-item/uni-swipe-action-item.vue"]]);
+=======
+  const __easycom_1$1 = /* @__PURE__ */ _export_sfc(_sfc_main$m, [["render", _sfc_render$l], ["__scopeId", "data-v-3ebdcd95"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-swipe-action-item/uni-swipe-action-item.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$l = {
     name: "uniSwipeAction",
     data() {
@@ -15305,7 +17785,11 @@ if (uni.restoreGlobal) {
       vue.renderSlot(_ctx.$slots, "default")
     ]);
   }
+<<<<<<< HEAD
   const __easycom_2 = /* @__PURE__ */ _export_sfc(_sfc_main$l, [["render", _sfc_render$k], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-swipe-action/uni-swipe-action.vue"]]);
+=======
+  const __easycom_2 = /* @__PURE__ */ _export_sfc(_sfc_main$l, [["render", _sfc_render$k], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-swipe-action/uni-swipe-action.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$k = {
     data() {
       return {
@@ -15363,7 +17847,11 @@ if (uni.restoreGlobal) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_swipe_action_item = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action-item"), __easycom_1$1);
     const _component_uni_swipe_action = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action"), __easycom_2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -15466,7 +17954,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesAddressListAddressList = /* @__PURE__ */ _export_sfc(_sfc_main$k, [["render", _sfc_render$j], ["__scopeId", "data-v-5e069a28"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/addressList/addressList.vue"]]);
+=======
+  const Sub_myPagesAddressListAddressList = /* @__PURE__ */ _export_sfc(_sfc_main$k, [["render", _sfc_render$j], ["__scopeId", "data-v-5e069a28"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/addressList/addressList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const geo = [
     {
       code: "110000",
@@ -44679,7 +47171,11 @@ if (uni.restoreGlobal) {
       vue.createCommentVNode(" <slot></slot> ")
     ], 40, ["value", "range"]);
   }
+<<<<<<< HEAD
   const regionSelect = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["render", _sfc_render$i], ["__scopeId", "data-v-8d2205ed"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/components/regionSelect/regionSelect.vue"]]);
+=======
+  const regionSelect = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["render", _sfc_render$i], ["__scopeId", "data-v-8d2205ed"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/components/regionSelect/regionSelect.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$i = {
     data() {
       return {
@@ -44754,7 +47250,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesAddressAddAddressAdd = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["render", _sfc_render$h], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/addressAdd/addressAdd.vue"]]);
+=======
+  const Sub_myPagesAddressAddAddressAdd = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["render", _sfc_render$h], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/addressAdd/addressAdd.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$h = {
     data() {
       return {
@@ -44866,7 +47366,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesAddressEditAddressEdit = /* @__PURE__ */ _export_sfc(_sfc_main$h, [["render", _sfc_render$g], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/addressEdit/addressEdit.vue"]]);
+=======
+  const Sub_myPagesAddressEditAddressEdit = /* @__PURE__ */ _export_sfc(_sfc_main$h, [["render", _sfc_render$g], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/addressEdit/addressEdit.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$g = {
     data() {
       return {
@@ -44935,7 +47439,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesChangePasswordChangePassword = /* @__PURE__ */ _export_sfc(_sfc_main$g, [["render", _sfc_render$f], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/changePassword/changePassword.vue"]]);
+=======
+  const Sub_myPagesChangePasswordChangePassword = /* @__PURE__ */ _export_sfc(_sfc_main$g, [["render", _sfc_render$f], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/changePassword/changePassword.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$f = {
     data() {
       return {
@@ -44996,7 +47504,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesChangeInfoChangeInfo = /* @__PURE__ */ _export_sfc(_sfc_main$f, [["render", _sfc_render$e], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/changeInfo/changeInfo.vue"]]);
+=======
+  const Sub_myPagesChangeInfoChangeInfo = /* @__PURE__ */ _export_sfc(_sfc_main$f, [["render", _sfc_render$e], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/changeInfo/changeInfo.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$e = {
     data() {
       return {
@@ -45024,7 +47536,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -45044,7 +47560,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$d(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -45174,7 +47694,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesCouponListCouponList = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["render", _sfc_render$d], ["__scopeId", "data-v-62d886c4"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/couponList/couponList.vue"]]);
+=======
+  const Sub_myPagesCouponListCouponList = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["render", _sfc_render$d], ["__scopeId", "data-v-62d886c4"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/couponList/couponList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$d = {
     data() {
       return {
@@ -45208,7 +47732,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad(options) {
       this.typeId = options.id || 0;
@@ -45229,7 +47757,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$c(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -45441,7 +47973,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesOrderListOrderList = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["render", _sfc_render$c], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/orderList/orderList.vue"]]);
+=======
+  const Sub_myPagesOrderListOrderList = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["render", _sfc_render$c], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/orderList/orderList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$c = {
     data() {
       return {
@@ -45780,7 +48316,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesOrderDetailOrderDetail = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["render", _sfc_render$b], ["__scopeId", "data-v-a3b23d37"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/orderDetail/orderDetail.vue"]]);
+=======
+  const Sub_myPagesOrderDetailOrderDetail = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["render", _sfc_render$b], ["__scopeId", "data-v-a3b23d37"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/orderDetail/orderDetail.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$b = {
     name: "uniTransition",
     props: {
@@ -45959,7 +48499,11 @@ if (uni.restoreGlobal) {
       /* CLASS, STYLE */
     )) : vue.createCommentVNode("v-if", true);
   }
+<<<<<<< HEAD
   const __easycom_0 = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["render", _sfc_render$a], ["__scopeId", "data-v-7007b586"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-transition/uni-transition.vue"]]);
+=======
+  const __easycom_0 = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["render", _sfc_render$a], ["__scopeId", "data-v-7007b586"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-transition/uni-transition.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const message = {
     created() {
       if (this.type === "message") {
@@ -46218,7 +48762,11 @@ if (uni.restoreGlobal) {
       /* CLASS, HYDRATE_EVENTS */
     )) : vue.createCommentVNode("v-if", true);
   }
+<<<<<<< HEAD
   const __easycom_1 = /* @__PURE__ */ _export_sfc(_sfc_main$a, [["render", _sfc_render$9], ["__scopeId", "data-v-c9f9675a"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/uni-popup/uni-popup.vue"]]);
+=======
+  const __easycom_1 = /* @__PURE__ */ _export_sfc(_sfc_main$a, [["render", _sfc_render$9], ["__scopeId", "data-v-c9f9675a"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/uni-popup/uni-popup.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$9 = {
     data() {
       return {
@@ -46507,7 +49055,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesOrderEvaluateOrderEvaluate = /* @__PURE__ */ _export_sfc(_sfc_main$9, [["render", _sfc_render$8], ["__scopeId", "data-v-8d0f2dae"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/orderEvaluate/orderEvaluate.vue"]]);
+=======
+  const Sub_myPagesOrderEvaluateOrderEvaluate = /* @__PURE__ */ _export_sfc(_sfc_main$9, [["render", _sfc_render$8], ["__scopeId", "data-v-8d0f2dae"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/orderEvaluate/orderEvaluate.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$8 = {
     props: {
       bgColor: {
@@ -46637,7 +49189,11 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
+<<<<<<< HEAD
   const logistics = /* @__PURE__ */ _export_sfc(_sfc_main$8, [["render", _sfc_render$7], ["__scopeId", "data-v-5b728eb3"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/components/sju-logistics/sju-logistics.vue"]]);
+=======
+  const logistics = /* @__PURE__ */ _export_sfc(_sfc_main$8, [["render", _sfc_render$7], ["__scopeId", "data-v-5b728eb3"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/components/sju-logistics/sju-logistics.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$7 = {
     data() {
       return {
@@ -46680,7 +49236,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesLogisticsInfoLogisticsInfo = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$6], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/logisticsInfo/logisticsInfo.vue"]]);
+=======
+  const Sub_myPagesLogisticsInfoLogisticsInfo = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$6], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/logisticsInfo/logisticsInfo.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$6 = {
     data() {
       return {
@@ -46705,7 +49265,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -46730,7 +49294,11 @@ if (uni.restoreGlobal) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_swipe_action_item = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action-item"), __easycom_1$1);
     const _component_uni_swipe_action = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action"), __easycom_2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -46830,7 +49398,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesCollectCollect = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/collect/collect.vue"]]);
+=======
+  const Sub_myPagesCollectCollect = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/collect/collect.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$5 = {
     data() {
       return {
@@ -46855,7 +49427,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -46880,7 +49456,11 @@ if (uni.restoreGlobal) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
     const _component_uni_swipe_action_item = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action-item"), __easycom_1$1);
     const _component_uni_swipe_action = resolveEasycom(vue.resolveDynamicComponent("uni-swipe-action"), __easycom_2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -46974,7 +49554,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesConcernConcern = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/concern/concern.vue"]]);
+=======
+  const Sub_myPagesConcernConcern = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/concern/concern.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$4 = {
     data() {
       return {
@@ -47257,7 +49841,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesFeedbackFeedback = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-18b80221"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/feedback/feedback.vue"]]);
+=======
+  const Sub_myPagesFeedbackFeedback = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-18b80221"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/feedback/feedback.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$3 = {
     data() {
       return {
@@ -47270,7 +49858,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -47290,7 +49882,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -47369,7 +49965,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesIssuesListIssuesList = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-4b733cbd"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/issuesList/issuesList.vue"]]);
+=======
+  const Sub_myPagesIssuesListIssuesList = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-4b733cbd"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/issuesList/issuesList.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$2 = {
     data() {
       return {
@@ -47381,7 +49981,11 @@ if (uni.restoreGlobal) {
     },
     components: {
       uniNavBar: __easycom_0$2,
+<<<<<<< HEAD
       Empty: __easycom_1$6
+=======
+      Empty: __easycom_1$7
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     },
     onLoad() {
     },
@@ -47393,7 +49997,11 @@ if (uni.restoreGlobal) {
   };
   function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_uni_nav_bar = resolveEasycom(vue.resolveDynamicComponent("uni-nav-bar"), __easycom_0$2);
+<<<<<<< HEAD
     const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$6);
+=======
+    const _component_sju_empty = resolveEasycom(vue.resolveDynamicComponent("sju-empty"), __easycom_1$7);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
     return vue.openBlock(), vue.createElementBlock(
       "view",
       {
@@ -47468,7 +50076,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesPointsLogPointsLog = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-12f63545"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/pointsLog/pointsLog.vue"]]);
+=======
+  const Sub_myPagesPointsLogPointsLog = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-12f63545"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/pointsLog/pointsLog.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   const _sfc_main$1 = {
     data() {
       return {
@@ -47555,7 +50167,11 @@ if (uni.restoreGlobal) {
       /* STYLE */
     );
   }
+<<<<<<< HEAD
   const Sub_myPagesBalanceBalance = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-a6261f4b"], ["__file", "C:/Users/86195/Desktop/gitPuls/By/sub_my/pages/balance/balance.vue"]]);
+=======
+  const Sub_myPagesBalanceBalance = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-a6261f4b"], ["__file", "C:/Users/Administrator/Desktop/ttt/By/sub_my/pages/balance/balance.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   __definePage("pages/tab/index/index", PagesTabIndexIndex);
   __definePage("pages/tab/classify/classify", PagesTabClassifyClassify);
   __definePage("pages/tab/cart/cart", PagesTabCartCart);
@@ -47597,6 +50213,7 @@ if (uni.restoreGlobal) {
   __definePage("sub_my/pages/issuesList/issuesList", Sub_myPagesIssuesListIssuesList);
   __definePage("sub_my/pages/pointsLog/pointsLog", Sub_myPagesPointsLogPointsLog);
   __definePage("sub_my/pages/balance/balance", Sub_myPagesBalanceBalance);
+<<<<<<< HEAD
   var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
   var md5Exports = {};
   var md5$2 = {
@@ -48113,6 +50730,8 @@ if (uni.restoreGlobal) {
     logInfo,
     toMD5
   }, Symbol.toStringTag, { value: "Module" }));
+=======
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   function VersionUpdate() {
     if (uni.canIUse("getUpdateManager")) {
       const updateManager = uni.getUpdateManager();
@@ -48367,7 +50986,11 @@ if (uni.restoreGlobal) {
       formatAppLog("log", "at App.vue:42", "App Hide");
     }
   };
+<<<<<<< HEAD
   const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "C:/Users/86195/Desktop/gitPuls/By/App.vue"]]);
+=======
+  const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "C:/Users/Administrator/Desktop/ttt/By/App.vue"]]);
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   function getDevtoolsGlobalHook() {
     return getTarget().__VUE_DEVTOOLS_GLOBAL_HOOK__;
   }
@@ -49180,11 +51803,19 @@ if (uni.restoreGlobal) {
       if (!rawModule[key]) {
         return;
       }
+<<<<<<< HEAD
       var assertOptions2 = assertTypes[key];
       forEachValue(rawModule[key], function(value, type) {
         assert(
           assertOptions2.assert(value),
           makeAssertionMessage(path, key, type, value, assertOptions2.expected)
+=======
+      var assertOptions = assertTypes[key];
+      forEachValue(rawModule[key], function(value, type) {
+        assert(
+          assertOptions.assert(value),
+          makeAssertionMessage(path, key, type, value, assertOptions.expected)
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
         );
       });
     });

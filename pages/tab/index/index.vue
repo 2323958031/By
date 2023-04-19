@@ -1,162 +1,189 @@
 <template>
-	<view :style="Theme">
-		<uni-nav-bar :statusBar="true" fixed="true" title="电商平台案例" />
+	<view class="box">
+		<view class="ssk">
+			<view class="ssl">
+				<image class="fdj" src="../../../static/tool/搜索.png" mode=""></image>
+				请输入你想要的商品
+			</view>
+		</view>
+		<!-- 头部导航栏 -->
+		<scroll-view class="topnav" scroll-x="true" scroll-left="120" show-scrollbar>
+			<view class="remen">
+				热门
+			</view>
+
+			<view class="remen" v-for="(item,i) in erjinav" key="i">
+				{{item.categoryName}}
+			</view>
+		</scroll-view>
 		<!-- banner图 -->
-		<swiper class="swiper" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval"
-			:duration="duration" :circular="circular" indicator-active-color="#fff">
-			<swiper-item v-for="(swiper,index) in swiperList" :key="index">
-				<image :src="swiper.imgUrl"></image>
+		<swiper class="swiper" circular indicator-dots="true" autoplay="true" interval="5000" indicator-active-color="#f7b200">
+			<swiper-item v-for="(swiper,index) in imgs" key="index">
+				<image :src="swiper.newImageUrl"></image>
 			</swiper-item>
 		</swiper>
 
-		<!-- 工具导航栏 -->
-		<view class="menu">
-			<view class="menuItem" @click="navTo(item.path)"
-			v-for="(item, index) in menuList" :key="index">
-				<i class="iconfont" :class="item.icon"></i>
-				<!-- <image :src="item.image"></image> -->
-				<text>{{item.name}}</text>
+		<!-- 轮播图下面 -->
+		<view class="bannerxia">
+			<view class="fen">
+				大牌品质/
+			</view>
+			<view class="fen">
+				工厂价格/
+			</view>
+			<view class="fen">
+				分期支付/
+			</view>
+			<view class="fen">
+				顺丰包邮/
+			</view>
+			<view class="fen">
+				无忧退款
+			</view>
+		</view>
+		<view class="bannxia2">
+			<view v-for="(item,index) in bannxia" :key="index">
+				<view class="xiaico">
+					<image class="icos" :src="item.icon" mode=""></image>
+					<view class="titl">
+						{{item.title}}
+					</view>
+				</view>
 			</view>
 		</view>
 
-		<!-- 产品推荐 -->
-		<view class="title-box">
-			<view class="title">产品推荐</view>
-			<i class="iconfont icon-right" @click="navTo('/goods/goodsList')"></i>
-		</view>
 
 		<!-- 产品列表 -->
-		<waterfall ref="waterfall" >
-			<template v-slot:left="{leftList}">
-				<view class="goods-item" @click="navTo(`/goods/goodsDetail?id=${item.id}`)" v-for="(item, index) in leftList" :key="index">
-					<!-- 商品图片 -->
-					<image class="goods-image" :src="item.img" lazy-load="true" mode="widthFix"></image>
-					<view class="goods-title">
-						<view class="title">
-							<text class="tag" v-if="item.is_special === 1">特价</text>
-							{{item.name}}
-						</view>
+		<view class="lists"  >
+			<view class="shops" v-for="(item,index) in arr" :key="index">
+				<view class="shopa" v-for="(it,i) in item.data" :key="i">
+					<image class="shopimg" :src="it.image" mode=""></image>
+					<view class="price">
+						￥{{it.priceStr}}
 					</view>
-					<!-- 商品价格 -->
-					<view class="price-box">
-						<view class="price">
-							￥<span>{{item.price}}</span>
+						<view class="labels" >
+							<view class="content" v-for="(eme,ia) in it.labels" :key="ia">
+								{{eme.content}}
+							</view>
 						</view>
-						<view class="current-price">
-							￥<span>{{item.current_price}}</span>
-						</view>
+					<view class="mainTitle">
+						{{it.mainTitle}}
+					</view>
+					<view class="thirdContent">
+						{{it.thirdContent}}
 					</view>
 				</view>
-			</template>
-			<template v-slot:right="{rightList}">
-				<view class="goods-item"  @click="navTo(`/goods/goodsDetail?id=${item.id}`)" v-for="(item, index) in rightList" :key="index">
-					<!-- 商品图片 -->
-					<image class="goods-image" :src="item.img" lazy-load="true" mode="widthFix"></image>
-					<view class="goods-title">
-						<view class="title">
-							<text class="tag" v-if="item.is_special === 1">特价</text>
-							{{item.name}}
-						</view>
-					</view>
-					<!-- 商品价格 -->
-					<view class="price-box">
-						<view class="price">
-							￥<span>{{item.price}}</span>
-						</view>
-						<view class="current-price">
-							￥<span>{{item.current_price}}</span>
-						</view>
-					</view>
-				</view>
-			</template>
-		</waterfall>
-
-		<!-- 加载更多 -->
-		<view class="loadingText">{{loadingText}}</view>
-	</view>
+			</view>
+			<div style="text-align: center; line-height: 50rpx;" v-if="loading">加载中...</div>
+		</view>
+		</view>
 </template>
 
-<script>
-	import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
-	import waterfall from '@/components/waterfall/waterfall.vue'
-	import { bannerList, menuList, goodsList } from '@/mock/mock.js'
-	export default {
-		data() {
-			return {
-				Theme: '',
-				// 是否首页哀悼模式
-				isMourn: false,
-				// banner图设置参数
-				indicatorDots: true,
-				circular: true,
-				autoplay: true,
-				interval: 1500,
-				duration: 500,
-				swiperList: [],
-				menuList:[],
-				// 产品列表
-				goodsList: [],
-				loadingText: '上拉加载更多',
-			}
-		},
-		components: {
-			uniNavBar,
-			waterfall
-		},
-		onLoad() {
+<script setup>
+	import {
+		onMounted,
+		ref
+	} from 'vue'
+	import {
+		onLoad,onReachBottom
+	} from '@dcloudio/uni-app'
+import { logInfo } from '../../../common/sju.base';
 
-		},
-		onShow() {
-			this.Theme = this.$store.state.Theme
-			if(this.isMourn) {
-				this.Theme = this.$store.state.Theme + this.$store.state.mourningStyle
+
+
+	// import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
+	// import waterfall from '@/components/waterfall/waterfall.vue'
+	// import { bannerList, menuList, goodsList } from '@/mock/mock.js'
+	// export default {
+	let arr = ref([])
+	let erjinav = ref([])
+	let imgs = ref([])
+	let bannxia = ref([])
+	let loading=ref(false)
+	let page=ref(2)
+	onLoad((op) => {
+		uni.request({
+			url: "http://192.168.212.25:5566/home",
+			success(res) {
+				erjinav.value = res.data.homeData.oneLevelCategoryList
+				imgs.value = res.data.homeData.banners
+				bannxia.value = res.data.homeData.operationNavigation
+				console.log(res.data.floorData.blockList[1].block, "123");
+				arr.value = res.data.floorData.blockList[1].block
 			}
-			//设置 tabBar 选择颜色改为主题色
-			uni.setTabBarStyle({
-				selectedColor: this.Theme.split(/\;|\:/)[1],
-			})
-			// 设置tabBar图标
-			if(this.sjuLogin.getValue('themeName') != '') {
-				this.sjuTools.setTabBar()
-			}
-			// 设置购物车数量
-			this.setcartNum()
-			
-			this.swiperList = bannerList
-			this.menuList = menuList
-			this.goodsList = goodsList
-			setTimeout(() => {
-				this.$refs.waterfall.setData(this.goodsList)
-			}, 1000)
-		},
-		onReachBottom() {
-			if( this.goodsList .length < 200) {
-				this.goodsList = this.goodsList.concat(this.goodsList)
-				this.$refs.waterfall.setData(this.goodsList)
-			} else {
-				this.loadingText = '已加载全部数据';
-			}
-			
-		},
-		methods: {
-			navTo(page){
-				this.sjuNav.navigateTo(page)
+		})
+	})
+
+	onReachBottom((e)=>{
+		loading.value=true
+		page.value++
+		uni.request({
+		// 	// method:'POST',
+			url: "http://192.168.212.25:5566/floorlist",
+			data:{
+				pageIndex:page.value
 			},
-			// 设置tabBar购物车数量
-			setcartNum(){
-				if( this.$store.state.cartNum > 0) {
-					let cartNum = this.$store.state.cartNum > 99 ? '99+' : this.$store.state.cartNum.toString()
-					uni.setTabBarBadge({
-					  index: 2,
-					  text: cartNum
-					})
-				}
+			success(res) {
+		// 		// erjinav.value = res.data.homeData.oneLevelCategoryList
+		// 		// imgs.value = res.data.homeData.banners
+		// 		// bannxia.value = res.data.homeData.operationNavigation
+		// 		// console.log(res.data.floorData.blockList[1].block, "123");
+		// 		// arr.value = res.data.floorData.blockList[1].block
+				console.log(res);
 			}
-		}
-	}
+		})
+		setTimeout(function(){
+			loading.value=false
+		},2000)
+	})
+
 </script>
 
 <style lang="scss" scoped>
+	.box{padding-top: 50rpx;
+		width: 100vw;
+		// height: 90vh;
+	}
+	// 搜索
+	.ssk {
+		width: 98vw;
+		margin: 20rpx auto;
+		overflow: hidden;
+		text-align: left;
+		line-height: 60rpx;
+
+		.ssl {
+			border: 1px solid #ccc;
+			border-radius: 32rpx;
+
+		}
+
+		.fdj {
+			width: 40rpx;
+			height: 40rpx;
+			margin: 10rpx;
+			float: left;
+		}
+	}
+
+	// 二级菜单栏
+	.topnav {
+		width: 96%;
+		margin: auto;
+		line-height: 30rpx;
+		white-space: nowrap;
+		text-align: center;
+
+		.remen {
+			// width: 200rpx;
+			// float: left;
+			display: inline-block;
+			margin-left: 10rpx;
+			padding: 15rpx;
+		}
+	}
+
+
 	/* 轮播图 */
 	.swiper {
 		$swiper-width: 100%;
@@ -171,8 +198,100 @@
 		}
 	}
 
+	// 轮播图下面文
+	.bannerxia {
+		width: 96vw;
+		margin: auto;
+		display: flex;
+
+		.fen {
+			padding: 10rpx;
+			margin: 5rpx;
+		}
+	}
+
+	.bannxia2 {
+		width: 96vw;
+		margin:10rpx auto;
+		background: #fff;
+		height: 150rpx;
+		.xiaico {
+			width: 20%;
+			float: left;
+			text-align: center;
+
+			.icos {
+				margin: 10rpx 20rpx;
+				width: 50rpx;
+				height: 50rpx;
+			}
+		}
+	}
+
+	// 商品列表
+	.lists {
+		width: 96vw;
+		position: relative;
+		margin:50rpx auto;
+		// bottom: 10vh;
+		// height: 90vh;
+		overflow: hidden;
+		.shops {
+			padding: 20rpx 0;
+			background: #fff;
+			width: 47.5vw;
+			margin-left: 0.5vw;
+			// width: 350rpx;
+			float: left;
+		margin-bottom: 2rpx;
+			// margin-right: 5%;
+
+			.shopa {
+				width: 100%;
+				
+				.shopimg {
+					width: 100%;
+					height: 400rpx;
+				}
+				.price{
+					color: #f7a701;
+					font-size: 34rpx;
+				}
+				.labels{
+					margin: 20rpx;
+					overflow: hidden;
+					.content{
+						margin-right: 20rpx;
+						width: 100rpx;
+						float: left;
+						text-align: center;
+						background: rgb(255, 255, 255);
+						color: rgb(251, 76, 129);
+						border: 0.015rem solid rgb(251, 76, 129);
+						border-radius: 2px;
+					}
+				}
+				.mainTitle{
+					width: 100%;
+					overflow: hidden;
+					color: #4a4a4a;
+					line-height: 30rpx;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+				.thirdContent{
+					margin-top: 15rpx;
+					color: #bbbbbb;
+					font-size: 0.2rem;
+				}
+			}
+
+		}
+	}
+
+
 	/* 导航栏 */
-	.menu{
+	.menu {
 		width: 100%;
 		padding-top: 20upx;
 		margin-top: 20upx;
@@ -180,8 +299,9 @@
 		background-color: var(--accent-bg-color);
 		display: flex;
 		flex-wrap: wrap;
+
 		// justify-content: space-between;
-		.menuItem{
+		.menuItem {
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
@@ -189,18 +309,21 @@
 			width: 25%;
 			height: 130upx;
 			margin-bottom: 20upx;
-			image{
+
+			image {
 				width: 80upx;
 				height: 80upx;
 			}
-			.iconfont{
+
+			.iconfont {
 				font-size: 80upx;
 				color: var(--primary-color);
 				// color: transparent;
 				// background: radial-gradient(circle, var(--assist-color) 0%, var(--primary-color) 100%);
 				// background-clip: text;
 			}
-			text{
+
+			text {
 				font-size: 26upx;
 				color: $text-color;
 				margin-top: 10upx;
@@ -209,11 +332,11 @@
 	}
 
 	// 产品推荐
-	.title-box{
+	.title-box {
 		width: calc(100% - 40upx);
 		height: 100upx;
 		line-height: 100upx;
-		margin:20upx 0;
+		margin: 20upx 0;
 		padding: 0 20upx;
 		display: flex;
 		flex-direction: row;
@@ -221,7 +344,7 @@
 		align-items: center;
 		background-color: var(--accent-bg-color);
 		border-bottom: 1upx solid var(--border-color);
-		
+
 		.title:before {
 			content: '';
 			width: 6upx;
@@ -232,7 +355,8 @@
 			border-radius: 6upx;
 			background-color: var(--primary-color);
 		}
-		.iconfont{
+
+		.iconfont {
 			font-size: 60upx;
 			color: var(--primary-color);
 		}
@@ -241,22 +365,23 @@
 	// 商品
 	.goods-item {
 		width: 100%;
-		margin-bottom:20upx;
+		margin-bottom: 20upx;
 		background-color: #FFFFFF;
 		border-radius: 10upx;
 		overflow: hidden;
-		
+
 		// 商品图片
 		.goods-image {
 			width: 100%;
 		}
-		
+
 		// 标题
-		.goods-title{
+		.goods-title {
 			padding: 20upx;
 			height: 100%;
+
 			// 标签
-			.tag{
+			.tag {
 				padding: 4upx 16upx;
 				margin-right: 10upx;
 				border-radius: 6upx;
@@ -264,15 +389,16 @@
 				color: #FFFFFF;
 				background: linear-gradient(to right, #fe3b0f, #fc603a);
 			}
+
 			// 标题
-			.title{
+			.title {
 				float: left;
 				font-size: 26upx;
 				line-height: 40upx;
 				margin-right: 10upx;
 			}
 		}
-		
+
 		// 价格信息
 		.price-box {
 			width: calc(100% - 40upx);
@@ -282,7 +408,7 @@
 			flex-wrap: wrap;
 			align-items: center;
 			justify-content: space-between;
-			
+
 			// 原价
 			.price {
 				display: flex;
@@ -290,15 +416,17 @@
 				color: $price-color;
 				font-size: 22upx;
 				text-decoration: line-through;
-				span{
+
+				span {
 					font-size: 28upx;
 				}
 			}
-			
+
 			// 当前价格
 			.current-price {
 				color: $price-color;
-				span{
+
+				span {
 					font-size: 34upx;
 					font-weight: 600;
 				}

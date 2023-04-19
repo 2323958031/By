@@ -25,7 +25,11 @@ __renderjsModules["9ab38898"] = (() => {
     default: () => stdin_default
   });
 
+<<<<<<< HEAD
   // C:/Users/86195/Desktop/gitPuls/By/components/uni-swipe-action-item/render.js
+=======
+  // C:/Users/Administrator/Desktop/ttt/By/components/uni-swipe-action-item/render.js
+>>>>>>> ad436aaab0fc5ab87416833b8dbca1ed4dc4bca1
   var MIN_DISTANCE = 10;
   var render_default = {
     showWatch(newVal, oldVal, ownerInstance, instance, self) {
