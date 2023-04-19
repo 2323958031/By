@@ -25,5 +25,33 @@ module.exports = {
 					'build' : 'dev', process.env.UNI_PLATFORM, '/')
 			}])
 		]
-	}
-}
+	},
+	
+
+// server: {
+// 		    host:'0.0.0.0',
+// 		    port: 3000,
+// 		    open: true, 
+// 		    base: "/api ", 
+// 		    proxy: {
+// 		      '^/api': {
+// 		        target: 'https://h5.biyao.com',
+// 		        changeOrigin: true,
+// 		        rewrite: (path) => path.replace(/^\/api/, '')
+// 		      }
+// 		    }
+// 		  },
+
+// devServer: {
+// 			  open: true,
+// 			  proxy: {
+// 			    	  '/api': {
+// 			    		target: 'https://h5.biyao.com',
+// 			    		ws: true,
+// 			    		changeOrigin: true,
+// 			    		pathRewrite: {
+// 			    			'^/api': '/api'
+// 			    		}
+// 			  }
+// 			}
+// 		}

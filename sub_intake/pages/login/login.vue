@@ -7,13 +7,14 @@
 		<view class="loginForm">
 			<view class="row-input">
 				<i class="iconfont icon-shouji" />
-				<input placeholder="请输入手机号" maxlength="11" placeholder-class="placeholder" />
+				<input placeholder="请输入手机号" @input="in1($event)" :value="vau" maxlength="11" placeholder-class="placeholder" />
 			</view>
 			<view class="row-input">
 				<i class="iconfont icon-mima" />
-				<input placeholder="请输入密码" maxlength="18" password placeholder-class="placeholder" />
+				<input placeholder="请输入密码" @input="in2($event)" :value="vau1" maxlength="18" password placeholder-class="placeholder" />
 			</view>
-			<view class="loginBtn">立即登录</view>
+			
+			<button style="background-color:#279b37;color: #fff;" @click="login">立即登录</button>
 			<view class="menuLink">
 				<text @click="navTo('/intake/register')">注册账号</text>
 				<text @click="navTo('/intake/forget')">忘记密码</text>
@@ -22,29 +23,50 @@
 	</view>
 </template>
 
-<script>
+<script setup>
 	import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
-	export default {
-		data() {
-			return {
-				Theme:''
-			}
-		},
-		components: {
-			uniNavBar
-		},
-		onLoad() {
-
-		},
-		onShow() {
-			this.Theme = this.$store.state.Theme
-		},
-		methods: {
-			navTo(path){
-				this.sjuNav.navigateTo(path)
-			}
-		}
+	import { onLoad } from '@dcloudio/uni-app'
+	import axios from 'axios'
+	import { ref }  from "vue"
+	onLoad(()=>{
+		console.log('创建')
+		// uni.request({
+		//         url: '/app/api/rmsp',
+		//         method: 'GET',
+		// 		success(r){
+		// 			console.log(r)
+		// 		}
+		//       })
+		axios.get("/api/rmsp")
+		.then(res=>{
+			console.log(res)
+		})
+	})
+	let Theme = ref("")
+	let vau = ref("")
+	let vau1 = ref("")
+	let in1 = function(e){
+		vau.value = e.detail.value
+		console.log(vau.value)
 	}
+	
+	let in2 = function(e){
+		vau1.value = e.detail.value
+		console.log(vau1.value,"1")
+	}
+	
+	let login = function(){
+		
+	}
+	
+	// uni.request(
+	// 	url:`/apirmsp`,
+	// 	success(r){
+	// 		console.log(r)
+	// 	}
+	// )
+	
+	
 </script>
 
 <style lang="scss">
