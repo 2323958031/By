@@ -41,7 +41,8 @@ const store = createStore({
 		themeName: uni.getStorageSync('themeName') ||'蓝色主题',
 		cartNum: uni.getStorageSync('cartNum') || 0,
 		memberLevel: uni.getStorageSync('memberLevel') || '普通会员',
-		memberDiscount: uni.getStorageSync('memberDiscount') || 1
+		memberDiscount: uni.getStorageSync('memberDiscount') || 1,
+		arr : []
 	},
 	mutations: {
 		// 设置哀悼模式
@@ -79,6 +80,9 @@ const store = createStore({
 		setmemberDiscount(state,memberDiscount){
 			state.memberDiscount = memberDiscount
 			uni.setStorageSync('memberDiscount',memberDiscount)
+		},
+		setArr(state,item) {
+			state.arr = item
 		}
 	},
 	getters: {

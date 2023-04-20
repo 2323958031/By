@@ -17,7 +17,7 @@
 						<view class="clothesBox" v-for="(res,ins) in typeList[ins].subCategoryList" :key="ins*0.1">
 								<view class="clothesTop">
 										<view class="title">{{res.categoryName}}</view>
-										<view touchcancel="gg">更多</view>
+										<view touchcancel="gg" @click="goListDetil(res)">更多</view>
 								</view>
 								<view class="clothes">
 										<view class="commodityBox" v-for="(r,j) in res.subCategoryList">
@@ -35,7 +35,11 @@
 	import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
 	// import { typeList } from '@/mock/mock.js'
 	import { ref } from "vue"
+	import { useStore } from "vuex"
 	import { onLoad ,onShow} from '@dcloudio/uni-app'
+	
+	const store = useStore()
+	console.log(store.state.arr)
 	let typeList = ref([])
 	let ins = ref(0)
 	onLoad(()=>{
@@ -50,6 +54,12 @@
 	
 	let select = (i)=>{
 		ins.value = i
+	}
+	
+	let goListDetil = (item) =>{
+		uni.navigateTo({
+			
+		})
 	}
 	// let Theme = ref("")
 	// let contentHeight = ref("")
