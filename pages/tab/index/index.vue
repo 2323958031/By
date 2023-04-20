@@ -98,7 +98,7 @@ import { logInfo } from '../../../common/sju.base';
 	let ins=ref(-1)
 	onLoad((op) => {
 		uni.request({
-			url: "http://192.168.212.25:3232/home",
+			url: "http://192.168.212.51:3232/home",
 			success(res) {
 				erjinav.value = res.data.homeData.oneLevelCategoryList
 				imgs.value = res.data.homeData.banners
@@ -116,7 +116,7 @@ import { logInfo } from '../../../common/sju.base';
 		page.value++
 		uni.request({
 		// 	// method:'POST',
-			url: `http://192.168.212.25:3232/floorlist?pageIndex=${page.value}`,
+			url: `http://192.168.212.51:3232/floorlist?pageIndex=${page.value}`,
 			data:{
 				
 			},

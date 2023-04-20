@@ -228,7 +228,7 @@
 		console.log(op.id);
 		uni.request({
 			// method:"POST"
-			url:`http://192.168.212.25:3232/products?id=${op.id}`,
+			url:`http://192.168.212.51:3232/products?id=${op.id}`,
 			data:{
 				
 			},
