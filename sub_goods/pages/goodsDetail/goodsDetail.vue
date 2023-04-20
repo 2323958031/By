@@ -1,11 +1,11 @@
 <template>
 	<view :style="Theme">
-		<uni-nav-bar :statusBar="true" leftIcon="arrowleft" fixed="true"  title="商品详情" />
+		<!-- <uni-nav-bar :statusBar="true" leftIcon="arrowleft" fixed="true"  title="商品详情" /> -->
 		<!-- 商品图片轮播 -->
 		<swiper class="swiper" autoplay="true" interval="4000"
 			duration="1000" :current="current" circular="true" @change="swiperChange">
 			<swiper-item v-for="(item,index) in productInfo.imgList" :key="index">
-				<image class="images" :src="item.imgUrl" @click="previewImage(objToArray(productInfo.imgList),index)" mode="aspectFit"></image>
+				<image class="images" :src="item.largeImg"  mode="aspectFit"></image>
 				<view class="laber">{{index+1}} / {{productInfo.imgList.length}}</view>
 			</swiper-item>
 		</swiper>
@@ -14,20 +14,60 @@
 		<view class="goods-info">
 			<view class="goods-price">
 				<view class="present-price">
-					￥<text>{{selectedSku.current_price || productInfo.current_price}}</text>
+					￥<text v-if="selectedSku">{{selectedSku.togGroupPriceStr}}</text>
+					<view class="shou-chang">
+						<image src="../../../static/img/爱心.png" mode=""></image>
+						收藏
+					</view>
 				</view>
-				<view class="original-price">￥{{selectedSku.price || productInfo.price}}</view>
+				<view class="original-price" v-if="selectedSku">{{selectedSku.supplierBackground}}</view>
 			</view>
-			<view class="goods-name">{{productInfo.name}}</view>
+			<view class="goods-name">{{productInfo.productName}}</view>
 			
 			<view class="goods-amount">
-				<view class="sold">已售{{productInfo.sellQty}}件</view>
-				<view class="sold">库存剩余{{productInfo.stockQty}}件</view>
+				<view class="sold">{{productInfo.productSale}}</view>
+				<!-- <view class="sold">库存剩余{{productInfo.stockQty}}件</view> -->
+			</view>
+
+		</view>
+		<view class="baozheng">
+			<view class="bao-zzz">
+				<image src="../../../static/img/icon_对勾中.png" mode=""></image>
+				<text class="bao-ttt">
+					七天无理由退货
+				</text>
+			</view>
+			<view class="bao-zzz">
+				<image src="../../../static/img/icon_对勾中.png" mode=""></image>
+				<text class="bao-ttt">
+					先行赔付
+				</text>
+			</view>
+			<view class="bao-zzz">
+				<image src="../../../static/img/icon_对勾中.png" mode=""></image>
+				<text class="bao-ttt">
+					超时赔付
+				</text>
+			</view>
+			<view class="bao-zzz">
+				<image src="../../../static/img/icon_对勾中.png" mode=""></image>
+				<text class="bao-ttt">
+					顺丰包邮
+				</text>
+			</view>
+			<view class="bao-zzz">
+				<text class="bao-ttt" style="margin-left: 30rpx;" @click="tuihuo">
+				···
+				</text>
 			</view>
 		</view>
-		
+		<view class="dibu" ref="fufu"  v-if="flas">
+			<img src="../../../static/img/QQ截图20230420110451.png" alt="">
+			<!-- <image class="fuwu" src="../../../static/img/QQ截图20230420110451.png" mode=""></image> -->
+			<button class="fuwuqd" @click="ddd">确定</button>
+		</view>
 		<!-- 属性规格 -->
-		<view class="tool-box">
+		<!-- <view class="tool-box">
 			<view class="tool-item" @click="$refs['sjuSpecs'].show()">
 				<view class="item-left">
 					<view class="item-title">规格</view>
@@ -68,14 +108,14 @@
 				</view>
 				<i class="iconfont icon-right"></i>
 			</view>
-		</view>
+		</view> -->
 		
 		<!-- 评论模块 -->
 		<view class="comment">
 			<!-- 评论标题 -->
 			<view class="title-box">
 				<view class="title">
-					宝贝评价<text>({{evaluate.count}})</text>
+					<!-- 宝贝评价<text>({{pl.count}})</text> -->
 				</view>
 				<view class="icon-box" @click="navTo(`/goods/evaluateList?code=${this.productCode}`)">
 					<view class="icon-name">查看全部</view>
@@ -83,9 +123,9 @@
 				</view>
 			</view>
 			<!-- 评价列表 -->
-			<view class="comment-list" v-for="(item,index) in evaluate.list.slice(0,2)" :key="index">
+			<!-- <view class="comment-list" v-for="(item,index) in evaluate.list.slice(0,2)" :key="index"> -->
 				<!-- 评论用户 -->
-				<view class="item-user">
+<!-- 				<view class="item-user">
 					<image class="user-image" :src="item.image" ></image>
 					<view class="user-info">
 						<view class="user-name">{{filters_name(item.name)}}</view>
@@ -99,7 +139,7 @@
 					<image v-for="(items,index) in item.imagesList" :key="index" 
 						:src="items" @click="previewImage(item.imagesList,index)" mode="aspectFit"></image>
 				</view>
-			</view>
+			</view> -->
 		</view>
 		
 		<!-- 商品详情 -->
@@ -107,7 +147,20 @@
 		  <view class="title">
 		    <text>商品详情</text>
 		  </view>
-		  <view class="product-content" v-html="productInfo.content">
+		  
+		  
+		  
+		  
+		  
+		  <view class="cpmc">
+			<view class="cpmc-cpmc" v-for="(item,i) in  productInfo.productTopDetail" :key="index">
+			<text class="left">{{item.name}}</text>	
+			<text class="right">{{item.desc}}</text>
+			</view>
+		  </view>
+		  
+		  <view class="product-content" v-html="productInfo.productButtomDetail">
+			  
 		  </view>
 		</view>
 		
@@ -128,35 +181,25 @@
 				</view>
 			</view>
 			<view class="nav-right">
-				<view v-if="goodsType =='ordinary'" class="add-btn"
-				@click="$refs['sjuSpecs'].show()" >
-					加入购物车
+				<view class="add-btn"
+				 >
+				加入购物车
 				</view>
-				<view v-if="goodsType =='ordinary'" class="buy-btn"
-				@click="$refs['sjuSpecs'].show()" >
-					立即购买
+				<view  class="buy-btn"
+				 >
+				立即购买
 				</view>
-				<view v-if="goodsType =='seckill'" class="seckill-btn"
-				@click="$refs['sjuSpecs'].show()" >
-					立即秒杀
-				</view>
-				<view v-if="goodsType =='group'" class="seckill-btn"
-				@click="$refs['sjuSpecs'].show()" >
-					立即团购
-				</view>
-				<view v-if="goodsType =='collage'" class="seckill-btn">
-					立即拼团
-				</view>
+
 			</view>
 		</view>
 		<!-- 服务弹窗 -->
-		<sju-service ref="sjuService" :serviceList="serviceList"></sju-service>
+		<!-- <sju-service ref="sjuService" :serviceList="serviceList"></sju-service> -->
 		<!-- 优惠券弹窗 -->
-		<sju-coupon ref="sjuCoupon" 
+	<!-- 	<sju-coupon ref="sjuCoupon" 
 		:couponList="couponCenterList"
-		@receive='couponReceive'></sju-coupon>
+		@receive='couponReceive'></sju-coupon> -->
 		<!-- 属性规格 -->
-		<sju-specs ref="sjuSpecs" 
+	<!-- 	<sju-specs ref="sjuSpecs" 
 		:goodsInfo="productInfo" 
 		:skuList="skuList" 
 		:priceList="priceList" 
@@ -165,131 +208,198 @@
 		@onAdd ="onAdd"
 		@onBuy ="onBuy"
 		@onChange="onSkuChange">
-		</sju-specs>
+		</sju-specs> -->
 		<!-- 商品参数 -->
-		<sju-params ref="sjuParams" :paramList="paramList"></sju-params>
+	<!-- 	<sju-params ref="sjuParams" :paramList="paramList"></sju-params> -->
 	</view>
 </template>
 
-<script>
-import uniNavBar from "@/components/uni-nav-bar/uni-nav-bar.vue"
-import sjuService from '@/components/sju-service/sju-service.vue'
-import sjuCoupon from '@/components/sju-coupon/sju-coupon.vue'
-import sjuSpecs from '@/components/sju-specs/sju-specs.vue'
-import sjuParams from '@/components/sju-params/sju-params.vue'
-import { 
-	productInfo, serviceList, skuList, priceList, 
-	paramList, evaluate, couponCenterList
-} from '@/mock/mock.js'
-	export default {
-		data() {
-			return {
-				Theme:'',
-				current:0,
-				productCode: '',	//商品编号
-				productInfo:{},
-				serviceList:[],
-				skuList:[],
-				priceList:[],
-				paramList:[],
-				skuStr:'请选择商品规格',
-				selectedSku: {},
-				evaluate:{},
-				couponCenterList:[],
-				goodsType:'ordinary'
-			}
-		},
-		components: {
-			uniNavBar,
-			sjuService,
-			sjuCoupon,
-			sjuSpecs,
-			sjuParams
-		},
-		onLoad(option) {
-			this.productCode = option.id
-			this.goodsType = option.goodsType || 'ordinary'
-		},
-		onShow() {
-			this.Theme = this.$store.state.Theme
-			this.productInfo = productInfo
-			this.serviceList = serviceList
-			this.skuList = skuList
-			this.priceList = priceList
-			this.paramList = paramList
-			this.evaluate = evaluate
-			this.couponCenterList = couponCenterList
-			this.paramText = this.paramList.map(item =>{return item.title}).join(' · ')
-		},
-		methods: {
-			// 过滤用户名称
-			filters_name(value){
-				if (!value || value === '') 
-					return ''
-				let name = ''
-				if(value.length>2) {
-					name = this.sjuTools.strFilter(value,1,-2)
-				} else {
-					name = value[0] + '****'
-				}
-				return name
+<script setup>
+	import {ref} from "vue"
+	import {onLoad} from '@dcloudio/uni-app'
+	let productInfo=ref([])
+	let selectedSku=ref()
+	let hei=ref("70vh")
+	let flas=ref(false)
+	let goodsType=ref('ordinary')
+	let productId=ref([])
+	let pl=ref("")
+	onLoad((op)=>{
+		console.log(op.id);
+		uni.request({
+			// method:"POST"
+			url:`http://192.168.212.25:3232/products?id=${op.id}`,
+			data:{
+				
 			},
-			// 轮播图切换
-			swiperChange(e){
-				this.current = e.detail.current
-			},
-			// 页面跳转
-			navTo(path){
-				this.sjuNav.navigateTo(path)
-			},
-			// 对象数组属性转数组
-			objToArray(List){
-				let arrNew = List.map(item => {
-				   return item.imgUrl
+			success(r){
+				console.log(r.data);
+				productInfo.value=r.data
+				selectedSku.value=r.data
+				productId.value=r.data.productId
+				uni.request({
+					url:`http://192.168.212.25:3232/productsA?id=${1301645275}&page_index=${1}&type=${-999}`,
+					data:{
+						
+					},
+					success(res){
+						console.log(res);
+						pl.value=res.data
+					}
 				})
-				return arrNew
-			},
-			// 预览图片
-			previewImage(urlList, index){
-				uni.previewImage({
-					current: index,
-					urls: urlList
-				})
-			},
-			// 规格选择
-			onSkuChange(e) {
-				this.selectedSku = e
-				if(JSON.stringify(this.selectedSku) !='{}' && this.selectedSku.skuText.length >0) {
-					let str = ''
-					this.selectedSku.skuText.forEach((item, index) => {
-						str += this.skuList[index].name + ':' + item + ' '
-					})
-					this.skuStr = str
-				}
-			},
-			// 立即购买
-			onBuy(e){
-				let type = {orderType:'goods'}
-				let item = Object.assign(type,e)
-				this.sjuNav.navigateTo('/goods/createOrder?item='+JSON.stringify(item))
-			},
-			// 加入购物车
-			onAdd(e){
-				console.log(e)
-			},
-			// 优惠券领取
-			couponReceive(e) {
-				console.log(e)
 			}
-			
-		}
+		})
+		// goodsType.value=op.id
+	})
+	let tuihuo=()=>{
+	flas.value=true
+	console.log(flas.value);
 	}
+	let ddd=()=>{
+		flas.value=false
+	}
+	
+// import uniNavBar from "@/components/uni-nav-bar/uni-nav-bar.vue"
+// import sjuService from '@/components/sju-service/sju-service.vue'
+// import sjuCoupon from '@/components/sju-coupon/sju-coupon.vue'
+// import sjuSpecs from '@/components/sju-specs/sju-specs.vue'
+// import sjuParams from '@/components/sju-params/sju-params.vue'
+// import { 
+// 	productInfo, serviceList, skuList, priceList, 
+// 	paramList, evaluate, couponCenterList
+// } from '@/mock/mock.js'
+// 	export default {
+// 		data() {
+// 			return {
+// 				Theme:'',
+// 				current:0,
+// 				productCode: '',	//商品编号
+// 				productInfo:{},
+// 				serviceList:[],
+// 				skuList:[],
+// 				priceList:[],
+// 				paramList:[],
+// 				skuStr:'请选择商品规格',
+// 				selectedSku: {},
+// 				evaluate:{},
+// 				couponCenterList:[],
+				// goodsType:'ordinary'
+// 			}
+// 		},
+// 		components: {
+// 			uniNavBar,
+// 			sjuService,
+// 			sjuCoupon,
+// 			sjuSpecs,
+// 			sjuParams
+// 		},
+// 		onLoad(option) {
+// 			console.log(option);
+// 			this.productCode = option.id
+// 			this.goodsType = option.goodsType || 'ordinary'
+// 		},
+// 		onShow() {
+// 			this.Theme = this.$store.state.Theme
+// 			this.productInfo = productInfo
+// 			this.serviceList = serviceList
+// 			this.skuList = skuList
+// 			this.priceList = priceList
+// 			this.paramList = paramList
+// 			this.evaluate = evaluate
+// 			this.couponCenterList = couponCenterList
+// 			this.paramText = this.paramList.map(item =>{return item.title}).join(' · ')
+// 		},
+// 		methods: {
+// 			// 过滤用户名称
+// 			filters_name(value){
+// 				if (!value || value === '') 
+// 					return ''
+// 				let name = ''
+// 				if(value.length>2) {
+// 					name = this.sjuTools.strFilter(value,1,-2)
+// 				} else {
+// 					name = value[0] + '****'
+// 				}
+// 				return name
+// 			},
+// 			// 轮播图切换
+// 			swiperChange(e){
+// 				this.current = e.detail.current
+// 			},
+// 			// 页面跳转
+// 			navTo(path){
+// 				this.sjuNav.navigateTo(path)
+// 			},
+// 			// 对象数组属性转数组
+// 			objToArray(List){
+// 				let arrNew = List.map(item => {
+// 				   return item.imgUrl
+// 				})
+// 				return arrNew
+// 			},
+// 			// 预览图片
+// 			previewImage(urlList, index){
+// 				uni.previewImage({
+// 					current: index,
+// 					urls: urlList
+// 				})
+// 			},
+// 			// 规格选择
+// 			onSkuChange(e) {
+// 				this.selectedSku = e
+// 				if(JSON.stringify(this.selectedSku) !='{}' && this.selectedSku.skuText.length >0) {
+// 					let str = ''
+// 					this.selectedSku.skuText.forEach((item, index) => {
+// 						str += this.skuList[index].name + ':' + item + ' '
+// 					})
+// 					this.skuStr = str
+// 				}
+// 			},
+// 			// 立即购买
+// 			onBuy(e){
+// 				let type = {orderType:'goods'}
+// 				let item = Object.assign(type,e)
+// 				this.sjuNav.navigateTo('/goods/createOrder?item='+JSON.stringify(item))
+// 			},
+// 			// 加入购物车
+// 			onAdd(e){
+// 				console.log(e)
+// 			},
+// 			// 优惠券领取
+// 			couponReceive(e) {
+// 				console.log(e)
+// 			}
+			
+// 		}
+// 	}
 </script>
 
 <style lang="scss" scoped>
+	.cpmc{
+		width: 750rpx;
+		margin: auto;
+		 .cpmc-cpmc{
+			width: 710rpx;
+			padding: 15rpx;
+			height: 60rpx;
+			margin: 20rpx;
+			.left{
+				width: 200rpx;
+				height: 60rpx;
+			margin-right: 80rpx;	
+			}
+			.right{
+				// white-space:nowrap\
+				width: 500rpx;
+				height: 60rpx;
+				float: right;
+			}
+		}
+	}
 	/* 商品轮播图 */
 	.swiper {
-		$swiper-width: 750upx;
+		$swiper-width: 100vw;
+		// max-width: 750upx;
 		$swiper-height: 750upx;
 		width: $swiper-width;
 		height: $swiper-height;
@@ -322,7 +432,7 @@ import {
 		background-color: var(--accent-bg-color);
 		.goods-price{
 			padding: 20upx 0;
-			display: flex;
+			// display: flex;
 			align-items: center;
 			// 商品售价
 			.present-price{
@@ -332,13 +442,26 @@ import {
 				text{
 					font-size: $price-font-size;
 				}
+				.shou-chang{
+					float: right;
+					color: #000000;
+					line-height: 50rpx;
+				}
+				.shou-chang image{
+					width:50rpx ;
+					height: 50rpx;
+				}
 			}
 			// 商品标价
 			.original-price{
-				color: #999999;
-				font-size: 28upx;
-				margin: 10upx 0 0 20upx;
-				text-decoration: line-through;
+			max-width: 4.78rem;
+			line-height: 54rpx;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-size: .26rem;
+			color: #bf9e6b;
+				// text-decoration: line-through;
 			}
 		}
 		// 商品名称
@@ -356,6 +479,48 @@ import {
 			align-items: center;
 			justify-content: space-between;
 			
+		}
+
+	}
+	.baozheng{
+		// display: flex;
+		display: block;
+		overflow: hidden;
+		// float: left;
+		
+		width: 96vw;
+		font-size: 28rpx;
+		text-align: center;
+		.bao-zzz{
+			float: left;
+			margin: 0;
+			// width: 240rpx;
+			.bao-ttt{
+				width: 20%;
+				// width: 80rpx;
+			}
+		}
+		 .bao-zzz image{
+				width: 30rpx;
+				height: 30rpx;
+				float: left;
+				
+		}
+	}
+	.dibu{
+		position: fixed;
+		bottom: 10vw;
+		height: 70vh;
+		width: 100vw;
+		overflow: hidden;
+		.dibu .fuwu{
+			width: 100vw !important;
+			// width: 100vw !important;
+			height: 60% !important;
+		}
+		.dibu .fuwuqd{
+			color: #0055ff;
+			background-color:red !important;
 		}
 	}
 	
@@ -629,13 +794,13 @@ import {
 		.nav-right{
 			width: 60%;
 			text-align: center;
-			color: #FFFFFF;
+			// color: #FFFFFF;
 			font-size: 30upx;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			.add-btn{
-				width: 50%;
+				width: 49%;
 				height: 80upx;
 				line-height: 80upx;
 				color: var(--primary-color);
@@ -645,10 +810,10 @@ import {
 				// background: linear-gradient(90deg, #FFCD1E, #FF8A18);
 			}
 			.buy-btn{
-				width: 50%;
+				width: 49%;
 				height: 80upx;
 				line-height: 80upx;
-				color: #FFFFFF;
+				// color: #FFFFFF;
 				border-top-right-radius: 40upx;
 				border-bottom-right-radius: 40upx;
 				background: linear-gradient(90deg, var(--primary-color), var(--assist-color));
@@ -659,7 +824,7 @@ import {
 				width: 100%;
 				height: 80upx;
 				line-height: 80upx;
-				color: #FFFFFF;
+				// color: #FFFFFF;
 				border-radius: 40upx;
 				background: linear-gradient(90deg, var(--primary-color), var(--assist-color));
 			}

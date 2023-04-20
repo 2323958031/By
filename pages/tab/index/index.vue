@@ -7,12 +7,12 @@
 			</view>
 		</view>
 		<!-- 头部导航栏 -->
-		<scroll-view class="topnav" scroll-x="true" scroll-left="120" show-scrollbar>
-			<view class="remen">
+		<scroll-view class="topnav" scroll-x="true" scroll-left="120" show-scrollbar >
+			<view :class="ins==-1?'act remen':'remen'" @click="erji(-1)">
 				热门
 			</view>
 
-			<view class="remen" v-for="(item,i) in erjinav" key="i">
+			<view :class="ins==i?'act remen':'remen'" v-for="(item,i) in erjinav" key="i" @click="erji(i)">
 				{{item.categoryName}}
 			</view>
 		</scroll-view>
@@ -55,8 +55,8 @@
 
 		<!-- 产品列表 -->
 		<view class="lists"  >
-			<view class="shops" v-for="(item,index) in arr" :key="index">
-				<view class="shopa" v-for="(it,i) in item.data" :key="i">
+			<view class="shops" v-for="(item,index) in arr" :key="index" >
+				<view class="shopa" v-for="(it,i) in item.data" :key="i"  @click="navTo(it.routerParams.suId)">
 					<image class="shopimg" :src="it.image" mode=""></image>
 					<view class="price">
 						￥{{it.priceStr}}
@@ -89,21 +89,16 @@
 	} from '@dcloudio/uni-app'
 import { logInfo } from '../../../common/sju.base';
 
-
-
-	// import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
-	// import waterfall from '@/components/waterfall/waterfall.vue'
-	// import { bannerList, menuList, goodsList } from '@/mock/mock.js'
-	// export default {
 	let arr = ref([])
 	let erjinav = ref([])
 	let imgs = ref([])
 	let bannxia = ref([])
 	let loading=ref(false)
 	let page=ref(2)
+	let ins=ref(-1)
 	onLoad((op) => {
 		uni.request({
-			url: "http://192.168.212.25:5566/home",
+			url: "http://192.168.212.25:3232/home",
 			success(res) {
 				erjinav.value = res.data.homeData.oneLevelCategoryList
 				imgs.value = res.data.homeData.banners
@@ -113,29 +108,38 @@ import { logInfo } from '../../../common/sju.base';
 			}
 		})
 	})
-
+	let  erji=(e)=>{
+		ins.value=e
+	}
 	onReachBottom((e)=>{
 		loading.value=true
 		page.value++
 		uni.request({
 		// 	// method:'POST',
-			url: "http://192.168.212.25:5566/floorlist",
+			url: `http://192.168.212.25:3232/floorlist?pageIndex=${page.value}`,
 			data:{
-				pageIndex:page.value
+				
 			},
 			success(res) {
-		// 		// erjinav.value = res.data.homeData.oneLevelCategoryList
-		// 		// imgs.value = res.data.homeData.banners
-		// 		// bannxia.value = res.data.homeData.operationNavigation
-		// 		// console.log(res.data.floorData.blockList[1].block, "123");
-		// 		// arr.value = res.data.floorData.blockList[1].block
-				console.log(res);
+
+				arr.value=arr.value.concat(res.data.data.blockList[0].block)
+				console.log(res.data.data.blockList[0].block,"下拉");
+				console.log(arr.value);
+				if(res.data.data){
+						loading.value=false
+				}
 			}
 		})
-		setTimeout(function(){
-			loading.value=false
-		},2000)
+
 	})
+	let navTo=(id)=>{
+		// uin.navigateTo({
+			
+		// })
+		uni.navigateTo({
+			url:`/sub_goods/pages/goodsDetail/goodsDetail?id=${id}`
+		})
+	}
 
 </script>
 
@@ -168,12 +172,15 @@ import { logInfo } from '../../../common/sju.base';
 
 	// 二级菜单栏
 	.topnav {
-		width: 96%;
+		width: 96vw;
+		height: 100rpx;
 		margin: auto;
 		line-height: 30rpx;
 		white-space: nowrap;
 		text-align: center;
-
+	.act{
+		border-bottom: 1px solid red;
+	}
 		.remen {
 			// width: 200rpx;
 			// float: left;

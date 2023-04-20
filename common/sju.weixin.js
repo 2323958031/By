@@ -1,7 +1,7 @@
 import {apiUrl} from '@/common/sju.ajax.js'
 
 //微信js-sdk引入
-import * as jweixin from 'weixin-js-sdk'
+// import * as jweixin from 'weixin-js-sdk'
 // var jweixin = require('jweixin-module')
 
 // let weixin = {

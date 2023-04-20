@@ -1,7 +1,7 @@
 /**
  * 所有封装包的基础方法
  */
-import * as md5 from 'js-md5'
+// import * as md5 from 'js-md5'
 
 /**
  * @description 开发阶段输出信息(可以随时关闭输出)
